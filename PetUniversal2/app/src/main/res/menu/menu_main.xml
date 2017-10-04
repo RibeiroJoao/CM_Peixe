@@ -1,0 +1,22 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.petuniversal.joaoribeiro.petuniversal.MainActivity">
+    <item
+        android:id="@+id/menu_qrcode"
+        android:orderInCategory="100"
+        android:title="QR code"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_smartwatch"
+        android:orderInCategory="100"
+        android:title="Smartwatch"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/menu_notifications"
+        android:orderInCategory="100"
+        android:title="Notifications"
+        android:checkable="true"
+        android:checked="false"
+        app:showAsAction="never" />
+</menu>

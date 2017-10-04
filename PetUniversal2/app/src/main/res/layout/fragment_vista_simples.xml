@@ -1,0 +1,329 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin">
+
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="1">
+
+        <TableRow
+            android:id="@+id/VS_T_row1"
+            android:layout_width="match_parent">
+            <TextView
+                android:id="@+id/VS_T_col1"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:background="@drawable/cell_shape"
+                android:text="Animal"/>
+            <TextView
+                android:id="@+id/VS_T_col2"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="13h" />
+
+            <TextView
+                android:id="@+id/VS_T_col3"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="14h" />
+
+            <TextView
+                android:id="@+id/VS_T_col4"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="15h" />
+
+            <TextView
+                android:id="@+id/VS_T_col5"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="16h" />
+
+            <TextView
+                android:id="@+id/VS_T_col6"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="17h" />
+
+            <TextView
+                android:id="@+id/VS_T_col7"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="18h" />
+        </TableRow>
+
+        <TableRow android:id="@+id/VS_T_row2">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:background="@drawable/cell_outline"
+                android:layout_width="148dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/dog1"
+                    android:gravity="center"/>
+                <Button
+                    android:id="@+id/animalButton1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:text="Boby" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorPet"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorRed"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorGrey"
+                android:gravity="center" />
+        </TableRow>
+
+
+        <TableRow android:id="@+id/VS_T_row3">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:background="@drawable/cell_outline"
+                android:layout_width="148dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/dog2"
+                    android:gravity="center" />
+                <Button
+                    android:id="@+id/animalButton2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:text="Zeus" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorPet"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorOrange"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorGrey"
+                android:gravity="center" />
+        </TableRow>
+
+
+        <TableRow android:id="@+id/VS_T_row4">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:background="@drawable/cell_outline"
+                android:layout_width="148dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/dog3"
+                    android:gravity="center"/>
+                <Button
+                    android:id="@+id/animalButton3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:text="Kika" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorOrange"
+                android:gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+        </TableRow>
+
+        <TableRow android:id="@+id/VS_T_row5">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:background="@drawable/cell_outline"
+                android:layout_width="148dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/cat"
+                    android:gravity="center"/>
+                <Button
+                    android:id="@+id/animalButton4"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:text="Bichano" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorRed"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:gravity="center"
+                android:text="-" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/cell_shape"
+                android:backgroundTint="@color/colorGrey"
+                android:gravity="center" />
+        </TableRow>
+
+    </TableLayout>
+
+</RelativeLayout>

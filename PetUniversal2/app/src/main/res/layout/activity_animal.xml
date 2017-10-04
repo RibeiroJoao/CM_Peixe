@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.petuniversal.joaoribeiro.petuniversal.AnimalActivity"
+    android:id="@+id/frag_animal_id">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:background="@drawable/cell_animal"
+        android:layout_height="50dp"
+        android:layout_width="200dp"
+        android:layout_marginTop="18dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/linearLayout">
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/dog2"
+            android:gravity="left"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Zeus" />
+    </LinearLayout>
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Espécie: Cão"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignStart="@+id/textView"
+        android:layout_marginTop="11dp"
+        android:id="@+id/textView4" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Raça: Beagle"
+        android:id="@+id/textView"
+        android:layout_below="@+id/textView4"
+        android:layout_alignStart="@+id/textView5" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Sexo: M"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/textView"
+        android:layout_alignStart="@+id/textView6" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Idade: 2"
+        android:id="@+id/textView6"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/textView7" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Peso: 10kg"
+        android:id="@+id/textView7"
+        android:layout_below="@+id/textView6"
+        android:layout_alignStart="@+id/textView8" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Temperamento: Bom"
+        android:id="@+id/textView8"
+        android:layout_below="@+id/textView7"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="21dp" />
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:text="Dono(a): Henrique"
+        android:layout_below="@+id/textView8"
+        android:layout_alignStart="@+id/textView8" />
+</RelativeLayout>
