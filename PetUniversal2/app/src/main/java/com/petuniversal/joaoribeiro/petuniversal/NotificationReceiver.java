@@ -22,12 +22,12 @@ public class NotificationReceiver extends BroadcastReceiver{
 
         PendingIntent pendingIntent = PendingIntent.getActivity(context,100,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = (NotificationCompat.Builder) new  NotificationCompat.Builder(context)
+        NotificationCompat.Builder notification = (NotificationCompat.Builder) new  NotificationCompat.Builder(context)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.petuniversal230230)
                 .setContentTitle("Pet Universal Notification")
                 .setContentText("Pet Universal Notification Text")
                 .setAutoCancel(true);
-        notificationManager.notify(100,builder.build());
+        notificationManager.notify(100, notification.build());
     }
 }

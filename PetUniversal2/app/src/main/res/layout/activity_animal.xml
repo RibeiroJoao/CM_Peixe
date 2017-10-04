@@ -22,10 +22,11 @@
             android:src="@drawable/dog2"
             android:gravity="left"/>
         <TextView
+            android:id="@+id/animalName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Zeus" />
+            android:text="ZZZZ" />
     </LinearLayout>
     <TextView
         android:layout_width="200dp"
@@ -72,9 +73,10 @@
         android:layout_alignParentStart="true"
         android:layout_marginStart="21dp" />
     <TextView
+        android:id="@+id/animalOwnerName"
         android:layout_width="200dp"
         android:layout_height="50dp"
         android:text="Dono(a): Henrique"
         android:layout_below="@+id/textView8"
-        android:layout_alignStart="@+id/textView8" />
+        android:layout_alignStart="@+id/textView8"/>
 </RelativeLayout>

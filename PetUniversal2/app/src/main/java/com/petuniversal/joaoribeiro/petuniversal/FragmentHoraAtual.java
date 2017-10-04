@@ -16,13 +16,16 @@ import android.widget.Button;
 
 public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
 
+
     private Button button;
+    private String animalName;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_hora_atual, container,false);
-        button = (Button) view.findViewById(R.id.animalButton1);
+        button = view.findViewById(R.id.animalButton1);
+        animalName = String.valueOf(button.getText());
         button.setOnClickListener(this);
         return view;
     }
@@ -32,6 +35,7 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
         switch (view.getId()) {
             case R.id.animalButton1:
                 Intent intent = new Intent(getActivity(), AnimalActivity.class);
+                intent.putExtra( "animalName", animalName);
                 startActivity(intent);
                 break;
         }

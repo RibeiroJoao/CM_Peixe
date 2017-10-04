@@ -17,20 +17,24 @@ import android.widget.Button;
 public class FragmentVistaSimples extends Fragment implements View.OnClickListener{
 
     private Button button;
+    private String animalName;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_vista_simples,container,false);
-        button = (Button) view.findViewById(R.id.animalButton2);
+        button = view.findViewById(R.id.animalButton2);
+        animalName = String.valueOf(button.getText());
         button.setOnClickListener(this);
         return view;
     }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.animalButton2:
                 Intent intent = new Intent(getActivity(), AnimalActivity.class);
+                intent.putExtra( "animalName", animalName);
                 startActivity(intent);
                 break;
         }

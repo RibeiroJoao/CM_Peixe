@@ -13,7 +13,6 @@ public class ListClinicsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_clinics);
-        Log.i("AAAAAAAAAAAAAAAAHHH","Está tudo bem ListClinics");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Bem vindo à Pet Universal");
 
