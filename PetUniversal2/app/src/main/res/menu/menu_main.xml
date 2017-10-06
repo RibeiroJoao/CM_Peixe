@@ -8,11 +8,6 @@
         android:title="QR code"
         app:showAsAction="never" />
     <item
-        android:id="@+id/menu_smartwatch"
-        android:orderInCategory="100"
-        android:title="Smartwatch"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/menu_notifications"
         android:orderInCategory="100"
         android:title="Notifications"

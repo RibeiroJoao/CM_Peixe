@@ -11,23 +11,26 @@ import android.support.v7.app.NotificationCompat;
  * Created by Joao Ribeiro on 03/10/2017.
  */
 
-public class NotificationReceiver extends BroadcastReceiver{
+public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        createNotification(context, "Times Up!", "5 seconds have passed!", "Alert!");
+    }
 
-        Intent repeating_intent = new Intent(context, MainActivity.class);
-        repeating_intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+    public void createNotification (Context context, String msg, String msgTxt, String msgAlert){
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context,100,repeating_intent,PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationCompat.Builder notification = (NotificationCompat.Builder) new  NotificationCompat.Builder(context)
+        NotificationCompat.Builder notificationRep = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.petuniversal230230)
                 .setContentTitle("Pet Universal Notification")
-                .setContentText("Pet Universal Notification Text")
-                .setAutoCancel(true);
-        notificationManager.notify(100, notification.build());
+                .setContentText("Delayed Pet Universal Notification Text")
+                .setAutoCancel(true) //remove when swiped
+                .setTicker(msgTxt)
+                .setDefaults(NotificationCompat.DEFAULT_SOUND);
+        //TODO will the the notification stop repeating?
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, notificationRep.build());
     }
 }

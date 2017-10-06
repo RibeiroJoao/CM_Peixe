@@ -30,11 +30,11 @@
             android:name="com.petuniversal.joaoribeiro.petuniversal.LoginActivity"
             android:label="Pet Universal"/>
         <activity
-            android:name="com.petuniversal.joaoribeiro.petuniversal.ListClinicsActivity" >
-        <!-- android:parentActivityName=".LoginActivity">
-        <meta-data
-            android:name="android.support.PARENT_ACTIVITY"
-            android:value="com.petuniversal.joaoribeiro.petuniversal.LoginActivity" />-->
+            android:name="com.petuniversal.joaoribeiro.petuniversal.ListClinicsActivity"
+            android:parentActivityName="com.petuniversal.joaoribeiro.petuniversal.LoginActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.petuniversal.joaoribeiro.petuniversal.LoginActivity" />
         </activity>
         <activity
             android:name="com.petuniversal.joaoribeiro.petuniversal.MainActivity"
@@ -57,7 +57,7 @@
 
         <activity
             android:name="com.petuniversal.joaoribeiro.petuniversal.OwnerActivity"
-            android:parentActivityName=".AnimalActivity"
+            android:parentActivityName="com.petuniversal.joaoribeiro.petuniversal.AnimalActivity"
             android:theme="@style/PetTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

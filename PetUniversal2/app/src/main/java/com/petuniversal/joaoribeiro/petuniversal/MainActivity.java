@@ -1,22 +1,29 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,16 +72,8 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.HOUR_OF_DAY,9);
-        calendar.set(Calendar.MINUTE,0);
-        calendar.set(Calendar.SECOND,0);
-
-        Intent intent= new Intent(getApplicationContext(), NotificationReceiver.class);
-
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 100,intent,PendingIntent.FLAG_UPDATE_CURRENT);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        int notifID = 100;
 
         if (id == R.id.menu_qrcode) {
             Toast toast = Toast.makeText(getApplicationContext(), "Opening camera...", Toast.LENGTH_SHORT);
@@ -90,26 +89,37 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
-        else if (id == R.id.menu_smartwatch) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Trying to connect to device...", Toast.LENGTH_SHORT);
-            toast.show();
-            return true;
-        }
         else if(id == R.id.menu_notifications){
 
             if(item.isChecked()){
                 item.setChecked(false);
                 Toast toast = Toast.makeText(getApplicationContext(), "Notifications are now OFF!", Toast.LENGTH_SHORT);
                 toast.show();
-                alarmManager.cancel(pendingIntent);
+                notificationManager.cancel(notifID);
             }
             else {
                 item.setChecked(true);
                 Toast toast = Toast.makeText(getApplicationContext(), "Notifications are now ON!", Toast.LENGTH_SHORT);
                 toast.show();
 
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, pendingIntent);
+                Intent intent = new Intent(this, MainActivity.class);
 
+                TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(this);
+                taskStackBuilder.addParentStack(MainActivity.class);
+                taskStackBuilder.addNextIntent(intent);
+
+                PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                NotificationCompat.Builder notification = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                        .setContentIntent(pendingIntent)
+                        .setSmallIcon(R.drawable.dog2)
+                        .setContentTitle("Pet Universal Notification")
+                        .setContentText("Zeus precisa da Vacina 2!")
+                        .setAutoCancel(true) //remove when swiped
+                        .setTicker("Pet has new task!")
+                        .setDefaults(NotificationCompat.DEFAULT_SOUND);
+
+                notificationManager.notify(notifID, notification.build());
             }
 
             return true;
@@ -126,13 +136,20 @@ public class MainActivity extends AppCompatActivity {
             if (result.getContents() == null) {
                 Toast.makeText(this, "Scanning cancelado.", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, result.getContents(), Toast.LENGTH_LONG).show();
-
                 Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
+                myIntent.putExtra( "animalName", result.getContents());
                 startActivity(myIntent);
             }
         }else {
             super.onActivityResult(requestCode,resultCode,data);
         }
     }
+
+    public void setNotificationRepeat (View view){
+        Long notificationTime = new GregorianCalendar().getTimeInMillis()+5*1000; //5seconds
+        Intent notificationIntent = new Intent(this, NotificationReceiver.class);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTime, PendingIntent.getBroadcast(this,0,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT));
+    }
 }
+
