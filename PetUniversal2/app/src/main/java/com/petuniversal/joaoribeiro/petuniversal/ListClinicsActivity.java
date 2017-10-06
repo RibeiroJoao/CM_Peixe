@@ -1,20 +1,30 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 
 public class ListClinicsActivity extends AppCompatActivity {
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_clinics);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+
         getSupportActionBar().setTitle("Bem vindo à Pet Universal");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.logout_icon);
 
         final Button button1 = (Button) findViewById(R.id.button);
         button1.setText("Clínica 1");
@@ -23,7 +33,7 @@ public class ListClinicsActivity extends AppCompatActivity {
                 // Code here executes on main thread after user presses button
                 Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
                 startActivity(myIntent);
-                finish();
+                //finish();
             }
         });
 
@@ -34,8 +44,9 @@ public class ListClinicsActivity extends AppCompatActivity {
                 // Code here executes on main thread after user presses button
                 Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
                 startActivity(myIntent);
-                finish();
+                //finish();
             }
         });
     }
+
 }
