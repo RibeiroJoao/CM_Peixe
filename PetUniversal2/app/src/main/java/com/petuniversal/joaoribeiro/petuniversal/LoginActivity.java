@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,8 +33,24 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -57,6 +74,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+
+    /**
+     * To save token and userID
+     */
+    private String token = null;
+    private String userID = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +203,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
+        try {
+            if (getToken(email,password)) {
+                Log.i("TOKEN","SUCCESS");
+            }
+        } catch (MalformedURLException e) {
+            Log.i("CATCH","LoginActivity, line 200");
+            e.printStackTrace();
+            cancel = true;
+        }
+
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -201,6 +234,30 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private boolean isPasswordValid(String password) {
         //TODO: Replace this with your own logic
         return true;
+    }
+
+    private boolean getToken (String email, String password) throws MalformedURLException {
+        //TODO: Replace this with your own logic
+        AsyncLogin asyncLogin = new AsyncLogin();
+        asyncLogin.execute();
+        try {
+            if (asyncLogin.get().contains("access_token") && asyncLogin.get().contains("user_id")){
+                JSONObject obj = new JSONObject(asyncLogin.get());
+                token = obj.getString("access_token");
+                userID = obj.getString("user_id");
+                return true;
+            }
+        } catch (InterruptedException e) {
+            Log.i("CATCH1","PARSING token");
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            Log.i("CATCH2","PARSING token");
+            e.printStackTrace();
+        } catch (JSONException e) {
+            Log.i("CATCH3","PARSING token");
+            e.printStackTrace();
+        }
+        return false;
     }
 
     /**
@@ -334,6 +391,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 toast.show();
 
                 Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
+                myIntent.putExtra("token",token);
+                myIntent.putExtra("userID",userID);
                 startActivity(myIntent);
 
                 //finish();
@@ -350,4 +409,5 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
     }
 }
+
 

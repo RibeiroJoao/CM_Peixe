@@ -3,7 +3,7 @@ package com.petuniversal.joaoribeiro.petuniversal;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -14,12 +14,24 @@ public class ListClinicsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_clinics);
 
-        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-
         getSupportActionBar().setTitle("Bem vindo à Pet Universal");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.logout_icon);
+
+        String token = null;
+        String userID = null;
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            token = extras.getString("token");
+            userID = extras.getString("userID");
+        }
+        Log.i("Token@List",token);
+        Log.i("UserID@List",userID);
+
+                /*JSONArray arr = obj.getJSONArray("clinics");
+                for (int i = 0; i < arr.length(); i++)                {
+                    String clinicName = arr.getJSONObject(i).getString("clinicName");
+                }*/
 
         final Button button1 = (Button) findViewById(R.id.button);
         button1.setText("Clínica 1");
@@ -42,6 +54,6 @@ public class ListClinicsActivity extends AppCompatActivity {
                 //finish();
             }
         });
-    }
 
+    }
 }

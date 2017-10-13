@@ -24,10 +24,10 @@ public class NotificationReceiver extends BroadcastReceiver {
         NotificationCompat.Builder notificationRep = (NotificationCompat.Builder) new NotificationCompat.Builder(context)
                 .setContentIntent(pendingIntent)
                 .setSmallIcon(R.drawable.petuniversal230230)
-                .setContentTitle("Pet Universal Notification")
-                .setContentText("Delayed Pet Universal Notification Text")
+                .setContentTitle(msg)
+                .setContentText(msgTxt)
                 .setAutoCancel(true) //remove when swiped
-                .setTicker(msgTxt)
+                .setTicker(msgAlert)
                 .setDefaults(NotificationCompat.DEFAULT_SOUND);
         //TODO will the the notification stop repeating?
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
