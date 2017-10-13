@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 
@@ -20,8 +18,11 @@ import java.nio.charset.StandardCharsets;
 
 public class AsyncLogin extends AsyncTask<Void, Void, String> {
 
-    String URLParameters = "grant_type=password&username="+"joao.ribeiro@petuniversal.com"+"&password="+"a";
-    //String URLtokens = "http://dev.petuniversal.com/hospitalization/api/tokens";
+    String URLParameters = null;
+
+    public AsyncLogin(String email, String password) {
+        URLParameters ="grant_type=password&username="+email+"&password="+password;
+    }
 
     @Override
     protected String doInBackground(Void... params) {
@@ -83,7 +84,7 @@ public class AsyncLogin extends AsyncTask<Void, Void, String> {
             //Log.i("RETURNED",returnado);
             return returnado;
         } catch (IOException e) {
-            Log.i("ERROR", "Token not returned!");
+            Log.i("ERROR@AsyncLogin", "Token not returned!");
             // If the code didn't successfully get the weather data, there's no point in attemping
             // to parse it.
             return null;

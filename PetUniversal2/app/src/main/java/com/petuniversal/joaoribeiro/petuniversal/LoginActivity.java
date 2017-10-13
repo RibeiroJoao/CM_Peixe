@@ -33,23 +33,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static android.Manifest.permission.READ_CONTACTS;
@@ -237,15 +226,16 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private boolean getToken (String email, String password) throws MalformedURLException {
-        //TODO: Replace this with your own logic
-        AsyncLogin asyncLogin = new AsyncLogin();
+        AsyncLogin asyncLogin = new AsyncLogin(email,password);
         asyncLogin.execute();
         try {
-            if (asyncLogin.get().contains("access_token") && asyncLogin.get().contains("user_id")){
-                JSONObject obj = new JSONObject(asyncLogin.get());
-                token = obj.getString("access_token");
-                userID = obj.getString("user_id");
-                return true;
+            if(asyncLogin.get()!=null) {
+                if (asyncLogin.get().contains("access_token") && asyncLogin.get().contains("user_id")) {
+                    JSONObject obj = new JSONObject(asyncLogin.get());
+                    token = obj.getString("access_token");
+                    userID = obj.getString("user_id");
+                    return true;
+                }
             }
         } catch (InterruptedException e) {
             Log.i("CATCH1","PARSING token");
