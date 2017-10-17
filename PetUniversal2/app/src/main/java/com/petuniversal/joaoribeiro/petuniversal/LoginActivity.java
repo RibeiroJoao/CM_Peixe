@@ -33,9 +33,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -103,6 +110,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+
     }
 
     private void populateAutoComplete() {
@@ -193,8 +202,17 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         try {
-            if (getToken(email,password)) {
-                Log.i("TOKEN","SUCCESS");
+            if (getTokenFromAPI(email,password)) { //With API
+                Log.i("TOKEN","with API SUCCESS");
+            }
+            else{
+                //with Firebase
+                Log.i("TOKEN","Starting Firebase");
+
+                if (setClinicsForFirebase(email,password)){
+                    Log.i("SettingClinics","ToFirebase");
+
+                }
             }
         } catch (MalformedURLException e) {
             Log.i("CATCH","LoginActivity, line 200");
@@ -225,7 +243,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return true;
     }
 
-    private boolean getToken (String email, String password) throws MalformedURLException {
+    private boolean getTokenFromAPI(String email, String password) throws MalformedURLException {
         AsyncLogin asyncLogin = new AsyncLogin(email,password);
         asyncLogin.execute();
         try {
@@ -250,7 +268,37 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return false;
     }
 
-    /**
+    private boolean setClinicsForFirebase(String email, String password) {
+        // Write a message to the database
+        DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
+
+        myDatabaseRef.child("users").child("email").setValue(email);
+
+        //myDatabaseRef.child("clinics").child("name1").setValue("Clinica 1 firebase");
+        //myDatabaseRef.child("clinics").child("name2").setValue("Clinica 2 firebase");
+
+        // Read from the database
+        myDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // This method is called once with the initial value and again
+                // whenever data at this location is updated.
+                String snapshot = dataSnapshot.getValue(String.class);
+                /*for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
+                    Log.i("FIREBASE@Login Content",singleSnapshot.getValue(String.class));
+                }*/
+                Log.i("FIREBASEcontent", snapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                Log.i("FIREBASE@Login", "Failed to read database, "+error.toException());
+            }
+        });
+        return true;
+    }
+        /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -383,6 +431,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
                 myIntent.putExtra("token",token);
                 myIntent.putExtra("userID",userID);
+
                 startActivity(myIntent);
 
                 //finish();

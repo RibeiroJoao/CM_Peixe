@@ -8,14 +8,6 @@
     android:orientation="vertical"
     android:id="@+id/listclinics_form">
 
-    <!--<ProgressBar
-        android:id="@+id/logout_progress"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:visibility="gone" />-->
-
     <LinearLayout
         android:orientation="horizontal"
         android:layout_gravity="center"
@@ -45,7 +37,7 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="50dp"
-                android:src="@drawable/logo_hosp2"
+                android:src="@drawable/logo_hosp1"
                 android:layout_gravity="left"/>
             <Button android:id="@+id/button2"
                 style="?android:attr/borderlessButtonStyle"

@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "484163041784",
+    "firebase_url": "https://pet-universal-app-id.firebaseio.com",
+    "project_id": "pet-universal-app-id",
+    "storage_bucket": "pet-universal-app-id.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:484163041784:android:f26b741cf49224b9",
+        "android_client_info": {
+          "package_name": "com.petuniversal.joaoribeiro.petuniversal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "484163041784-bjnuv3f87vjmsum53dsgjf8gkcg4ac3n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.petuniversal.joaoribeiro.petuniversal",
+            "certificate_hash": "6de2757c4f4abe8fcc0792c31cd5c3f6ee1a857e"
+          }
+        },
+        {
+          "client_id": "484163041784-1vjulr7un2c077uogfv6gu58pg13j6cf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVWNQeM6m4Le2RuAIwq69RYT36ZbGEpKk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "484163041784-1vjulr7un2c077uogfv6gu58pg13j6cf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

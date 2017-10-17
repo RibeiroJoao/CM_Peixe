@@ -39,6 +39,7 @@ public class AsyncLogin extends AsyncTask<Void, Void, String> {
         try {
             // Construct the URL for the Login query
             URL url = new URL("http://dev.petuniversal.com/hospitalization/api/tokens");
+            //URL url = new URL("https://pet-universal-app-id.firebaseio.com/");
 
             // Create the request and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
@@ -96,7 +97,7 @@ public class AsyncLogin extends AsyncTask<Void, Void, String> {
                 try {
                     reader.close();
                 } catch (final IOException e) {
-                    Log.e("PlaceholderFragment", "Error closing stream", e);
+                    Log.i("CATCH@AsyncLogin", "Error closing stream", e);
                 }
             }
         }
