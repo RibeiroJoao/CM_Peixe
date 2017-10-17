@@ -56,7 +56,7 @@ public class AsyncGETs extends AsyncTask<String, String, String> {
                 returndata = dta.toString();
                 return returndata;
             } else {
-                Log.i("CLINICS","NOT RETURNED @ AsyncGETs");
+                Log.i("CLINICS@AsyncGETs","NOT RETURNED from API");
             }
         } catch (IOException e) {
             e.printStackTrace();

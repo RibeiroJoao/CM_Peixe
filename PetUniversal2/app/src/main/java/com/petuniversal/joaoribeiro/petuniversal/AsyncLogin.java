@@ -56,7 +56,7 @@ public class AsyncLogin extends AsyncTask<Void, Void, String> {
             try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
                 wr.write( postData );
             } catch (IOException e) {
-                Log.i("EXCEPTIONLoginToken", String.valueOf(e));
+                Log.i("CATCH@AsyncLogin", String.valueOf(e));
                 e.printStackTrace();
             }
 

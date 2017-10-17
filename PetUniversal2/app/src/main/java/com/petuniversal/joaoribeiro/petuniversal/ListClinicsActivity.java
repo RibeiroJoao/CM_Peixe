@@ -13,6 +13,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
@@ -87,28 +88,33 @@ public class ListClinicsActivity extends AppCompatActivity {
         //Log.i("ArrNAMES",names.toString());
     }
     private ArrayList<String> getClinicsForFirebase() {
-        ArrayList<String> clinicNames = new ArrayList<>();
+        final ArrayList<String> clinicNames = new ArrayList<>();
 
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
-        myDatabaseRef.child("clinics").child("name1").setValue("Clinica 1 firebase");
-        myDatabaseRef.child("clinics").child("name2").setValue("Clinica 2 firebase");
+        myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
+        myDatabaseRef.child("clinics").child("name2").setValue("@List Clinic 2 firebase");
 
-        clinicNames.set(0, "Clinica 1 firebase");
-        clinicNames.set(1, "Clinica 2 firebase");
+        clinicNames.add("Clin1 firebase @list1");
+        clinicNames.add("Clin2 firebase @list1");
+
         Log.i("CLINICS@LIST", "Chegou aqui");
+
         // Read from the database
         myDatabaseRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
-                //String snapshot = dataSnapshot.getValue(String.class);
-                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+                String snapshot = String.valueOf(dataSnapshot.getValue(GenericTypeIndicator.class));
+                /*for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                     Log.i("FIREBASE@LIST Content", singleSnapshot.getValue(String.class));
-                }
-                //Log.i("FIREBASEcontent", snapshot);
+                }*/
+                clinicNames.set(0, "Clin1 firebase @list2");
+                clinicNames.set(1, "Clin2 firebase @list2");
+
+                Log.i("FIREBASE@LIST", "Content "+ snapshot);
             }
 
             @Override

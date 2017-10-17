@@ -33,16 +33,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -209,13 +205,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 //with Firebase
                 Log.i("TOKEN","Starting Firebase");
 
-                if (setClinicsForFirebase(email,password)){
-                    Log.i("SettingClinics","ToFirebase");
+                if (setContentForFirebase(email,password)){
+                    Log.i("SettingContent@LOGIN","ToFirebase");
 
                 }
             }
         } catch (MalformedURLException e) {
-            Log.i("CATCH","LoginActivity, line 200");
+            Log.i("CATCH@Login","line 218");
             e.printStackTrace();
             cancel = true;
         }
@@ -268,34 +264,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return false;
     }
 
-    private boolean setClinicsForFirebase(String email, String password) {
+    private boolean setContentForFirebase(String email, String password) {
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
         myDatabaseRef.child("users").child("email").setValue(email);
 
-        //myDatabaseRef.child("clinics").child("name1").setValue("Clinica 1 firebase");
-        //myDatabaseRef.child("clinics").child("name2").setValue("Clinica 2 firebase");
+        myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
+        myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
 
-        // Read from the database
-        myDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String snapshot = dataSnapshot.getValue(String.class);
-                /*for(DataSnapshot singleSnapshot : dataSnapshot.getChildren()){
-                    Log.i("FIREBASE@Login Content",singleSnapshot.getValue(String.class));
-                }*/
-                Log.i("FIREBASEcontent", snapshot);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.i("FIREBASE@Login", "Failed to read database, "+error.toException());
-            }
-        });
         return true;
     }
         /**
