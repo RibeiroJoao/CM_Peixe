@@ -5,9 +5,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -39,23 +36,23 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
-
-    /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -67,12 +64,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private View mProgressView;
     private View mLoginFormView;
 
-    /**
-     * To save token and userID
-     */
-    private String token = null;
-    private String userID = null;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +71,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
         mEmailView.setText("joao.ribeiro@petuniversal.com");
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -109,50 +99,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
     }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
 
     /**
      * Attempts to sign in or register the account specified by the login form.
@@ -197,25 +143,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
-        try {
-            if (getTokenFromAPI(email,password)) { //With API
-                Log.i("TOKEN","with API SUCCESS");
-            }
-            else{
-                //with Firebase
-                Log.i("TOKEN","Starting Firebase");
-
-                if (setContentForFirebase(email,password)){
-                    Log.i("SettingContent@LOGIN","ToFirebase");
-
-                }
-            }
-        } catch (MalformedURLException e) {
-            Log.i("CATCH@Login","line 218");
-            e.printStackTrace();
-            cancel = true;
-        }
-
         if (cancel) {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
@@ -225,7 +152,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             // perform the user login attempt.
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
+            mAuthTask.execute();
+            try {
+                if(mAuthTask.get()==null){
+                    Log.i("ERROR@LOGIN","API returned null");
+                    mAuthTask.cancel(true);
+                    //showProgress(true);
+                    //with Firebase
+                    setContentForFirebase(email,password);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -239,43 +177,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         return true;
     }
 
-    private boolean getTokenFromAPI(String email, String password) throws MalformedURLException {
-        AsyncLogin asyncLogin = new AsyncLogin(email,password);
-        asyncLogin.execute();
-        try {
-            if(asyncLogin.get()!=null) {
-                if (asyncLogin.get().contains("access_token") && asyncLogin.get().contains("user_id")) {
-                    JSONObject obj = new JSONObject(asyncLogin.get());
-                    token = obj.getString("access_token");
-                    userID = obj.getString("user_id");
-                    return true;
-                }
-            }
-        } catch (InterruptedException e) {
-            Log.i("CATCH1","PARSING token");
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            Log.i("CATCH2","PARSING token");
-            e.printStackTrace();
-        } catch (JSONException e) {
-            Log.i("CATCH3","PARSING token");
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     private boolean setContentForFirebase(String email, String password) {
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
         myDatabaseRef.child("users").child("email").setValue(email);
 
-        myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
-        myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
+        //myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
+        //myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
 
         return true;
     }
-        /**
+    /**
      * Shows the progress UI and hides the login form.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
@@ -283,86 +196,40 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
+        int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            mLoginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
+        mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        mLoginFormView.animate().setDuration(shortAnimTime).alpha(
+                show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            }
+        });
 
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mProgressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-        }
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+        mProgressView.animate().setDuration(shortAnimTime).alpha(
+                show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+            }
+        });
     }
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
+        return null;
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
-        addEmailsToAutoComplete(emails);
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+    public void onLoaderReset(Loader<Cursor> loader) {
 
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
     }
 
     /**
@@ -371,34 +238,139 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
-        private final String mEmail;
-        private final String mPassword;
+        private String token = null;
+        private String userID = null;
+        private String email = null;
+        private String URLParameters = null;
+        private String returnado = null;        // Will contain the raw JSON response as a string.
 
-        UserLoginTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
+        public UserLoginTask(String email, String password) {
+            this.email = email;
+            URLParameters = "grant_type=password&username="+email+"&password="+password;
+            Log.i("StartBackg@Login","line352");
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
+            //showProgress(true);
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            byte[] postData = URLParameters.getBytes( StandardCharsets.UTF_8 );
+            int postDataLength = postData.length;
 
             try {
-                // Simulate network access.
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return false;
-            }
+                // Construct the URL for the Login query
+                Log.i("PROGREEEESSSIING?","1....2....");
+                URL url = new URL("http://dev.petuniversal.com/hospitalization/api/tokens");
+                //URL url = new URL("https://pet-universal-app-id.firebaseio.com/");
 
-            return true;
+                // Create the request and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                //urlConnection.setDoOutput(true);
+                urlConnection.setInstanceFollowRedirects(false);
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("charset", "utf-8");
+                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength ));
+                urlConnection.setUseCaches(false);
+                urlConnection.connect();
+
+                Log.i("STEP0@LOGIN","with API");
+
+                //Não percebo este pedaço, não funciona sem ele
+                try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+                    wr.write( postData );
+                    Log.i("POSTDATA@LOGIN",postData.toString());
+                } catch (IOException e) {
+                    Log.i("CATCH@Login", String.valueOf(e));
+                    e.printStackTrace();
+                }
+                Log.i("STEP1@LOGIN","with API");
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                Log.i("STEP2@LOGIN","with API");
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+                Log.i("STEP3@LOGIN","with API");
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return false;
+                }else{
+                    returnado = buffer.toString();
+                    Log.i("RETURNED",returnado);
+                    return true;
+                }
+            } catch (IOException e) {
+                Log.i("ERROR@Login", "Token not returned from API!");
+                // If the code didn't successfully get the weather data, there's no point in attemping
+                // to parse it.
+                return false;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.i("CATCH@Login", "Error closing stream", e);
+                    }
+                }
+            }
         }
 
         @Override
-        protected void onPostExecute(final Boolean success) {
+        protected void onPostExecute(Boolean success) {
             mAuthTask = null;
-            showProgress(false);
+            //showProgress(true);
 
             if (success) {
+                try {
+                    if (returnado.contains("access_token") && returnado.contains("user_id")) {
+                        JSONObject obj = new JSONObject(returnado);
+                        token = obj.getString("access_token");
+                        userID = obj.getString("user_id");
+
+                        Context context = getApplicationContext();
+                        CharSequence text = "Login Success!";
+                        int duration = Toast.LENGTH_SHORT;
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
+
+                        Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
+                        myIntent.putExtra("token", token);
+                        myIntent.putExtra("userID", userID);
+                        startActivity(myIntent);
+
+                    } else {
+                        Log.i("ERROR@Login", "Token JSONarray falhado!");
+                    }
+                } catch (JSONException e) {
+                    Log.i("CATCH@Login", "PARSING token");
+                    e.printStackTrace();
+                }
+            } else {
+                Log.i("TOKEN@LOGIN","Starting Firebase");
+                // Write a message to the database
+                DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
+                myDatabaseRef.child("users").child("email").setValue(this.email);
+                //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+                //myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
+                //myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
                 Context context = getApplicationContext();
                 CharSequence text = "Login Success!";
                 int duration = Toast.LENGTH_SHORT;
@@ -406,15 +378,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 toast.show();
 
                 Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
-                myIntent.putExtra("token",token);
-                myIntent.putExtra("userID",userID);
-
                 startActivity(myIntent);
-
-                //finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
             }
         }
 
