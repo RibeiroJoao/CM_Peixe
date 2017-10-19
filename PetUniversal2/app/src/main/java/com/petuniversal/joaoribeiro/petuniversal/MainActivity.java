@@ -13,20 +13,30 @@ import android.support.v7.widget.Toolbar;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private String token;
+    private String userID;
+    private String clinicID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras!=null) { // !=null
+            token = extras.getString("token");
+            userID = extras.getString("userID");
+            clinicID = extras.getString("clinicID");
+            Log.i("ENTROU@MAIN", token+","+userID+","+clinicID);
+        }
+
     }
 
     public void setupViewPager (ViewPager viewPager){

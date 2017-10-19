@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,9 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
 
     private Button button;
     private String animalName;
+    private String token;
+    private String userID;
+    private String clinicID;
     //private boolean doubleClick= false;
     //private Handler doubleHandler = null;
     //private TextView textView1 = getView().findViewById(R.id.textViewOrange1);
@@ -34,6 +38,13 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
         button = view.findViewById(R.id.animalButton1);
         animalName = String.valueOf(button.getText());
         button.setOnClickListener(this);
+        Bundle extras = getActivity().getIntent().getExtras();
+        if (extras!=null) { // !=null
+            token = extras.getString("token");
+            userID = extras.getString("userID");
+            clinicID = extras.getString("clinicID");
+            Log.i("ENTROU@HORA", token+","+userID+","+clinicID);
+        }
         return view;
     }
 

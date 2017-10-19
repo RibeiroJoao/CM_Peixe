@@ -38,10 +38,10 @@ public class ListClinicsActivity extends AppCompatActivity {
 
         String token = null;
         String userID = null;
-        ArrayList <String> names = new ArrayList<>();
+        ArrayList <String> clinicNames = new ArrayList<>();
+        ArrayList <String> clinicIDs = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
-        Log.i("extras@LIST","log basico");
 
         if (extras!=null) { // !=null
             token = extras.getString("token");
@@ -60,30 +60,52 @@ public class ListClinicsActivity extends AppCompatActivity {
                     Log.i("RESULT@LIST", getRequest.get());
                     JSONArray arr = new JSONArray(getRequest.get());
                     for (int i = 0; i < arr.length(); i++) {
-                        names.add(arr.getJSONObject(i).getString("name"));
-                        //Log.i("NAME"+i,names.get(i)+" added to array");
+                        clinicNames.add(arr.getJSONObject(i).getString("name"));
+                        clinicIDs.add(arr.getJSONObject(i).getString("id"));
+                        //Log.i("NAME"+i,clinicNames.get(i)+" added to array");
                     }
                 }else Log.i("ERROR@LIST","Request API is null");
             } catch (InterruptedException | ExecutionException | JSONException e1) {
                 e1.printStackTrace();
             }
+            getRequest.cancel(true);
         }else {
             Log.i("FIREBASE@LIST","Entrou no GettingClinics");
-            //names.add("Clin1 tmp @list1");
-            //names.add("Clin2 tmp @list1");
-            names = getClinicsForFirebase();
-        }
+            //clinicNames.add("Clin1 tmp @list1");
+            //clinicNames.add("Clin2 tmp @list1");
+            //clinicNames = getClinicsForFirebase();
+            // Write a message to the database
+            DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
-        if (names.size()!=0) {
-            for (int i = 0; i <= names.size() - 1; i++) {
+            myDatabaseRef.child("clinics").child("name1").setValue("@List Clin 1 firebase");
+            myDatabaseRef.child("clinics").child("name2").setValue("@List Clin 2 firebase");
+            //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
+            //clinicNames.add("Clin1 firebase @list2");
+            //clinicNames.add("Clin2 firebase @list2");
+
+
+            //TODO AsyncTask for getting firstTime ClinicNames
+
+            clinicNames = getClinicsForFirebase();
+        }
+        Log.i("SIZE", String.valueOf(clinicNames.size()));
+        if (clinicNames.size()!=0) {
+            for (int i = 0; i <= clinicNames.size() - 1; i++) {
                 LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
                 Button btn = new Button(this);
-                btn.setText(names.get(i));
+                btn.setText(clinicNames.get(i));
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                final String finalToken = token;
+                final String finalUserID = userID;
+                final String finalClinicID = clinicIDs.get(i);
                 btn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         // Code here executes on main thread after user presses button
                         Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
+                        myIntent.putExtra("token", finalToken); //extra
+                        myIntent.putExtra("userID", finalUserID);
+                        myIntent.putExtra( "clinicID", finalClinicID);
                         startActivity(myIntent);
                     }
                 });
@@ -113,36 +135,20 @@ public class ListClinicsActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Get map of users in datasnapshot
-                collectClinics((Map<String,String>) dataSnapshot.getValue());
+                Map<String, String> all = (Map<String, String>) dataSnapshot.getValue();
+                for (Map.Entry<String, String> entry : all.entrySet()){
+                    clinicNames.add(entry.getValue());
+                }
+
+                Log.i("NAMES NAMES",clinicNames.toString());
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                //handle databaseError
+                // Failed to read value
+                Log.i("FIREBASE@LIST", "Failed to read database, " + databaseError.toException());
             }
         });
-        // Read from the database
-        /*myDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                Log.i("CLINICS@LIST","Entrou");
-                GenericTypeIndicator<Map<String, String>> genericTypeIndicator = new GenericTypeIndicator<Map<String, String>>() {};
-                Map<String, String> map = dataSnapshot.getValue(genericTypeIndicator );
-                /*for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                    Log.i("FIREBASE@LIST Content", singleSnapshot.getValue(String.class));
-                }
-
-                Log.i("FIREBASE@LIST", "Content "+ map.toString());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                Log.i("FIREBASE@LIST", "Failed to read database, " + error.toException());
-            }
-        });*/
         Log.i("CLINICS@LIST", "saiu daqui names="+clinicNames.toString());
         return clinicNames;
     }
@@ -151,14 +157,5 @@ public class ListClinicsActivity extends AppCompatActivity {
 
         ArrayList<String> names = new ArrayList<>();
 
-        //iterate through each user, ignoring their UID
-        for (Map.Entry<String, String> entry : users.entrySet()){
-
-            //Get user map
-            //Get phone field and append to list
-            names.add(entry.getValue());
-        }
-
-        Log.i("NAMES NAMES",names.toString());
     }
 }

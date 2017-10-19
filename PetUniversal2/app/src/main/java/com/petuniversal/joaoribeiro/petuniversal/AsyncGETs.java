@@ -39,9 +39,9 @@ public class AsyncGETs extends AsyncTask<String, String, String> {
             urlConnection.setRequestMethod("GET");   //POST or GET
             urlConnection.connect();
 
-
             // Check the connection status.
             int statusCode = urlConnection.getResponseCode();
+            Log.i("STATUS@AsyncGETs", String.valueOf(statusCode));
 
             // Connection success. Proceed to fetch the response.
             if (statusCode == 200) {
@@ -54,6 +54,7 @@ public class AsyncGETs extends AsyncTask<String, String, String> {
                     dta.append(chunks);
                 }
                 returndata = dta.toString();
+                Log.i("RETURNED@AsyncGETS",returndata);
                 return returndata;
             } else {
                 Log.i("CONTENT@AsyncGETs","NOT RETURNED from API");

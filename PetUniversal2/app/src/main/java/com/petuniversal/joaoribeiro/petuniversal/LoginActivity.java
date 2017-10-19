@@ -261,7 +261,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             int postDataLength = postData.length;
 
             try {
-                // Construct the URL for the Login query
+                // Construct the URL for the Login
                 Log.i("PROGREEEESSSIING?","1....2....");
                 URL url = new URL("http://dev.petuniversal.com/hospitalization/api/tokens");
                 //URL url = new URL("https://pet-universal-app-id.firebaseio.com/");
@@ -282,7 +282,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 //Não percebo este pedaço, não funciona sem ele
                 try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
                     wr.write( postData );
-                    Log.i("POSTDATA@LOGIN",postData.toString());
+                    //Log.i("POSTDATA@LOGIN",postData.toString());
                 } catch (IOException e) {
                     Log.i("CATCH@Login", String.valueOf(e));
                     e.printStackTrace();
