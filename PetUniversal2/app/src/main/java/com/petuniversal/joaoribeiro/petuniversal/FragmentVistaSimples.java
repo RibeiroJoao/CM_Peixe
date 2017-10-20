@@ -15,6 +15,8 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -25,12 +27,8 @@ import java.util.concurrent.ExecutionException;
 
 public class FragmentVistaSimples extends Fragment implements View.OnClickListener{
 
-    private Button button;
-    private String animalName;
-    private String clinicID;
+    private String animalNameApagar;
     private ArrayList<String> animalNames = new ArrayList<>();
-    private String token;
-    private String userID;
 
     @Nullable
     @Override
@@ -39,19 +37,20 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
 
         Bundle extras = getActivity().getIntent().getExtras();
         if (extras!=null) { // !=null
-            token = extras.getString("token");
-            userID = extras.getString("userID");
-            clinicID= extras.getString("clinicID");
-            Log.i("STEP0@VISTA", token+","+userID+","+clinicID);
+            String token = extras.getString("token");
+            String userID = extras.getString("userID");
+            String clinicID = extras.getString("clinicID");
+            Log.i("STEP0@VISTA", token +","+ userID +","+ clinicID);
 
-            //TODO AsyncGets AnimaisInternados
-            /**
-             * Async to GET list of internados
-             */
-            String animalsUrl = "http://dev.petuniversal.com/hospitalization/api/internments?clinic="+clinicID+"&open=true";
+            //TODO DataAtual ISO_OFFSET_DATE_TIME	Format	2011-12-03T10:15:30+01:00'
+            /*LocalDate date = LocalDate.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
+            String text = date.format(formatter);
+            LocalDate parsedDate = LocalDate.parse(text, formatter);
+            Log.i("TIME_NOW",parsedDate.toString());*/
+
+            String animalsUrl = "http://dev.petuniversal.com/hospitalization/api/internments?clinic="+ clinicID +"&open=true";
             AsyncGETs getRequest = new AsyncGETs();
-            //Log.i("Token@VISTA", token);
-            //Log.i("USERid@VISTA", userID);
             getRequest.execute(animalsUrl, token, userID);
             try {
                 if(getRequest.get()!=null) {
@@ -78,14 +77,15 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 final String finalToken = token;
                 final String finalUserID = userID;
-                final String finalClinicNames = animalNames.get(i);
+                final String animalName = animalNames.get(i);
+
                 btn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         // Code here executes on main thread after user presses button
                         Intent myIntent = new Intent(getActivity(), AnimalActivity.class);
                         myIntent.putExtra("token", finalToken); //extras
                         myIntent.putExtra("userID", finalUserID);
-                        myIntent.putExtra( "clinicName", finalClinicNames);
+                        myIntent.putExtra("animalName", animalName);
                         startActivity(myIntent);
                     }
                 });
@@ -95,8 +95,8 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
             Log.i("ERROR@VISTA", "ERROOO");
         }
 
-        button = view.findViewById(R.id.animalButton1);
-        animalName = String.valueOf(button.getText());
+        Button button = view.findViewById(R.id.animalButton1);
+        animalNameApagar = String.valueOf(button.getText());
         button.setOnClickListener(this);
 
         return view;
@@ -107,7 +107,7 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
         switch (view.getId()) {
             case R.id.animalButton2:
                 Intent intent = new Intent(getActivity(), AnimalActivity.class);
-                intent.putExtra( "animalName", animalName);
+                intent.putExtra( "animalName", animalNameApagar);
                 startActivity(intent);
                 break;
         }

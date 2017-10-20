@@ -32,12 +32,6 @@ import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-    private String token;
-    private String userID;
-    private String clinicID;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,23 +43,17 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Pet Universal");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.viewpager);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(mViewPager);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        Bundle extras = getIntent().getExtras();
-
-        if (extras!=null) { // !=null
-            token = extras.getString("token");
-            userID = extras.getString("userID");
-            clinicID = extras.getString("clinicID");
-            Log.i("ENTROU@MAIN", token+","+userID+","+clinicID);
-        }
+        //AsyncGETs Animais internados (nome+id)
+        //AsyncGETs
 
     }
 
@@ -139,8 +127,10 @@ public class MainActivity extends AppCompatActivity {
 
                 notificationManager.notify(notifID, notification.build());
             }
-
             return true;
+        } else if(id == R.id.menu_nfc){
+            Toast toast = Toast.makeText(getApplicationContext(), "Plz check if NFC is ON!", Toast.LENGTH_SHORT);
+            toast.show();
         }
 
         return super.onOptionsItemSelected(item);

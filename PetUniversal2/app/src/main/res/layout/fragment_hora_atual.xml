@@ -51,8 +51,7 @@
                     android:layout_height="match_parent"
                     android:text="Vacina 2"
                     android:background="@drawable/cell_shape"
-                    android:gravity="center"
-                    android:backgroundTint="@color/colorOrange"/>
+                    android:gravity="center"/>
             </LinearLayout>
 
 
@@ -109,11 +108,16 @@
                     android:gravity="center"
                     android:backgroundTint="@color/colorOrange"/>
             </LinearLayout>
-
-
         </TableRow>
-
-
     </TableLayout>
 
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ll_hora"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="260dp" />
 </RelativeLayout>
