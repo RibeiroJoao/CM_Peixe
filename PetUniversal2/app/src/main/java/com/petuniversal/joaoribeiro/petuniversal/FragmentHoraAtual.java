@@ -1,9 +1,12 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.content.Intent;
+import android.icu.text.SimpleDateFormat;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -20,7 +23,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 
@@ -35,6 +41,7 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
     private ArrayList<String> animalNames = new ArrayList<>();                //http://dev.petuniversal.com/hospitalization/api/internments?clinic=53&open=true
     private HashMap<String,String> clinicAnimalIDnInternID = new HashMap<>(); //http://dev.petuniversal.com/hospitalization/api/internments?clinic=53&open=true
     private HashMap<String,String> drugNamesnInterID = new HashMap<>();       //http://dev.petuniversal.com/hospitalization/api/drugs?clinic=53
+    private HashMap<String,String> drugNamesnID = new HashMap<>();            //http://dev.petuniversal.com/hospitalization/api/drugs?clinic=53
 
     @Nullable
     @Override
@@ -86,7 +93,9 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
                     for (int i = 0; i < arr.length(); i++) {
                         String name = arr.getJSONObject(i).getString("name");
                         drugNamesnInterID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("internment"));
+                        drugNamesnID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("id"));
                         Log.i("DrugNames&InternID@HORA",drugNamesnInterID.toString());
+                        Log.i("DrugNames&ID@HORA",drugNamesnID.toString());
                     }
                 }else Log.i("ERROR@HORA","Request API is null");
             } catch (InterruptedException | ExecutionException | JSONException e1) {
@@ -95,7 +104,7 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
             getRequest2.cancel(true);
 
             for (int i = 0; i <= animalNames.size() - 1; i++) {
-                LinearLayout ll = view.findViewById(R.id.ll_hora);
+                LinearLayout ll = view.findViewById(R.id.ll_animal);
                 Button btn = new Button(getActivity());
                 btn.setText(animalNames.get(i));
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -111,6 +120,48 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
                         myIntent.putExtra("userID", finalUserID);
                         myIntent.putExtra("animalName", animalName);
                         startActivity(myIntent);
+                    }
+                });
+                ll.addView(btn);
+            }
+            for ( final Map.Entry<String, String> entry : drugNamesnInterID.entrySet()) {
+                LinearLayout ll = view.findViewById(R.id.ll_droga);
+                final Button btn = new Button(getActivity());
+                btn.setText(entry.getKey());
+                btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                btn.setBackgroundResource(R.color.colorOrange);
+
+                btn.setOnTouchListener(new View.OnTouchListener() {
+                    private GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+                        @RequiresApi(api = Build.VERSION_CODES.N)
+                        @Override
+                        public boolean onDoubleTap(MotionEvent e) {
+                            Log.i("DoubleTAP@HORA", "onDoubleTap");
+                            btn.setBackgroundResource(R.color.colorPet);
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+                            String currentDateAndTime = sdf.format(new Date());
+                            //ISO_OFFSET_DATE_TIME	Date Time with Offset	2017-10-20T10:15:30+01:00'
+                            String prettyDateAndTime = String.valueOf(currentDateAndTime.charAt(0))+String.valueOf(currentDateAndTime.charAt(1))+
+                                    String.valueOf(currentDateAndTime.charAt(2))+String.valueOf(currentDateAndTime.charAt(3))+'-'+
+                                    String.valueOf(currentDateAndTime.charAt(4))+String.valueOf(currentDateAndTime.charAt(5))+'-'+
+                                    String.valueOf(currentDateAndTime.charAt(6))+String.valueOf(currentDateAndTime.charAt(7))+'T'+
+                                    String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10))+':'+
+                                    "00:00.000+0000";
+                            Log.i("TIME@HORA",prettyDateAndTime);
+                            //TODO metodo que vai criar action verde (papel)
+
+                            Toast toastTime = Toast.makeText(getActivity().getBaseContext(), "Clicaste em "+entry.getKey() , Toast.LENGTH_LONG);
+                            toastTime.show();
+                            return super.onDoubleTap(e);
+                        }
+                    });
+
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        Log.i("TAP@HORA", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
+                        gestureDetector.onTouchEvent(event);
+                        return true;
                     }
                 });
                 ll.addView(btn);
@@ -154,33 +205,7 @@ public class FragmentHoraAtual extends Fragment implements View.OnClickListener{
                 intent.putExtra( "animalName", animalName);
                 startActivity(intent);
                 break;
-            case R.id.textViewOrange1:
-                //TODO doubleTap to turn green
-                Toast toast1 = Toast.makeText(getContext(), "Should turn green 1", Toast.LENGTH_SHORT);
-                toast1.show();
 
-                break;
-            case R.id.textViewOrange2:
-                Toast toast2 = Toast.makeText(getContext(), "Should turn green 2", Toast.LENGTH_SHORT);
-                toast2.show();
-                break;
         }
     }
 }
-/*findViewById(R.id.touchableText).setOnTouchListener(new OnTouchListener() {
-    private GestureDetector gestureDetector = new GestureDetector(Test.this, new GestureDetector.SimpleOnGestureListener() {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
-            Log.d("TEST", "onDoubleTap");
-            return super.onDoubleTap(e);
-        }
-        ... // implement here other callback methods like onFling, onScroll as necessary
-    });
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        Log.d("TEST", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
-        gestureDetector.onTouchEvent(event);
-        return true;
-    }
-});*/

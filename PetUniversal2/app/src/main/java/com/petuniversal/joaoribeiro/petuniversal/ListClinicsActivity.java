@@ -27,6 +27,8 @@ import java.util.concurrent.ExecutionException;
 
 public class ListClinicsActivity extends AppCompatActivity {
 
+    private ArrayList<String> clinicNames;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,9 +38,21 @@ public class ListClinicsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.logout_icon);
 
+        /**
+         * PARA APAGAR
+         */
+        Button button1 = (Button) findViewById(R.id.button);
+        button1.setText("Clínica 1");
+        button1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+            Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
+            startActivity(myIntent);
+            }
+        });
+
         String token = null;
         String userID = null;
-        ArrayList <String> clinicNames = new ArrayList<>();
+         clinicNames = new ArrayList<String>();
         ArrayList <String> clinicIDs = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
@@ -116,7 +130,6 @@ public class ListClinicsActivity extends AppCompatActivity {
     }
 
     private ArrayList<String> getClinicsForFirebase() {
-        final ArrayList<String> clinicNames = new ArrayList<>();
 
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
@@ -137,8 +150,10 @@ public class ListClinicsActivity extends AppCompatActivity {
                 //Get map of users in datasnapshot
                 Map<String, String> all = (Map<String, String>) dataSnapshot.getValue();
                 for (Map.Entry<String, String> entry : all.entrySet()){
+                    // addEntryToClinics( entry.getValue());
                     clinicNames.add(entry.getValue());
                 }
+
 
                 Log.i("NAMES NAMES",clinicNames.toString());
             }
@@ -153,9 +168,8 @@ public class ListClinicsActivity extends AppCompatActivity {
         return clinicNames;
     }
 
-    private void collectClinics(Map<String, String> users) {
-
-        ArrayList<String> names = new ArrayList<>();
-
+    private void addEntryToClinics(String value) {
+        clinicNames.add(value);
     }
+
 }

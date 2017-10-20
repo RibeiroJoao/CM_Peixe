@@ -111,13 +111,26 @@
         </TableRow>
     </TableLayout>
 
-    
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/ll_hora"
-        android:orientation="vertical"
+        android:id="@+id/ll_horaMaior"
+        android:orientation="horizontal"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="260dp" />
+        android:layout_marginTop="264dp">
+
+        <LinearLayout
+            android:layout_width="178dp"
+            android:layout_height="match_parent"
+            android:id="@+id/ll_animal"
+            android:orientation="vertical"
+            android:layout_gravity="left"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/ll_droga"
+            android:orientation="vertical"
+            android:layout_gravity="right"/>
+    </LinearLayout>
 </RelativeLayout>
