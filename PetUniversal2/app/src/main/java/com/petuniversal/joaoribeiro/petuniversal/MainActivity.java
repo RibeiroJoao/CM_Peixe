@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.os.Build;
 import android.os.Parcelable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
@@ -21,18 +24,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
 public class MainActivity extends AppCompatActivity {
@@ -60,75 +57,68 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onNewIntent (Intent intent){
-        Toast.makeText(this,"NFC intent received!",Toast.LENGTH_SHORT).show();
-        onResume();
         super.onNewIntent(intent);
+        Log.i("NFC@MAIN","NFC intent received!");
+
+        Parcelable[] parcelables = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+        if(parcelables!=null && parcelables.length>0){
+            readTextFomMessage((NdefMessage) parcelables[0]);
+        }else {
+            Log.i("NFC@MAIN","no NFC text!");
+        }
+    }
+
+    public void readTextFomMessage(NdefMessage ndefMessage){
+        NdefRecord[] ndefRecords = ndefMessage.getRecords();
+
+        if(ndefRecords != null && ndefRecords.length>0){
+            NdefRecord ndefRecord = ndefRecords[0];
+            String tagContent = getTextFromNdefRecord(ndefRecord);
+            Toast.makeText(this,"Content is '"+tagContent+"'",Toast.LENGTH_SHORT).show();
+        }else {
+            Log.i("NFC@MAIN","no NFC text! (2)");
+        }
+    }
+
+    public String getTextFromNdefRecord (NdefRecord ndefRecord){
+        String tagContent = null;
+
+        try {
+            byte[] payload = ndefRecord.getPayload();
+            String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16"; // Get the Text Encoding
+            int languageCodeLength = payload[0] & 0063; // Get the Language Code, e.g. "en"
+            tagContent = new String (payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
+        } catch (UnsupportedEncodingException e) {
+            Log.i("NFC@MAIN", "Falhou "+e);
+        }
+        return tagContent;
     }
 
     @Override
     protected void onResume(){
 
+        //setupForegroundDispatch(this, nfcAdapter);
+
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,intent,0);
         IntentFilter[] intentFilterList = new IntentFilter[]{};
         nfcAdapter.enableForegroundDispatch(this, pendingIntent, intentFilterList, null);
-        readFromIntent(intent);
+        //readFromIntent(intent);
         super.onResume();
     }
+
 
     @Override
     protected void onPause(){
         nfcAdapter.disableForegroundDispatch(this);
         super.onPause();
     }
-
-    /**
-     * Read From NFC Tag
-     */
-    private void readFromIntent(Intent intent) {
-        String action = intent.getAction();
-        if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
-                || NfcAdapter.ACTION_TECH_DISCOVERED.equals(action)
-                || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
-            Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
-            NdefMessage[] msgs = null;
-            if (rawMsgs != null) {
-                msgs = new NdefMessage[rawMsgs.length];
-                for (int i = 0; i < rawMsgs.length; i++) {
-                    msgs[i] = (NdefMessage) rawMsgs[i];
-                }
-            }
-            buildTagViews(msgs);
-            Log.i("NFC@MAIN", String.valueOf(msgs));
-        }
-    }
-    private void buildTagViews(NdefMessage[] msgs) {
-        if (msgs == null || msgs.length == 0) return;
-
-        String text = "";
-//        String tagId = new String(msgs[0].getRecords()[0].getType());
-        byte[] payload = msgs[0].getRecords()[0].getPayload();
-        String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16"; // Get the Text Encoding
-        int languageCodeLength = payload[0] & 0063; // Get the Language Code, e.g. "en"
-        // String languageCode = new String(payload, 1, languageCodeLength, "US-ASCII");
-
-        try {
-            // Get the Text
-            text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
-        } catch (UnsupportedEncodingException e) {
-            Log.e("UnsupportedCode@MAIN", e.toString());
-        }
-
-        Toast.makeText(this, text, Toast.LENGTH_LONG).show();
-    }
-
 
     public void setupViewPager (ViewPager viewPager){
         SectionsPagerAdapter adapter = new SectionsPagerAdapter(getSupportFragmentManager());
