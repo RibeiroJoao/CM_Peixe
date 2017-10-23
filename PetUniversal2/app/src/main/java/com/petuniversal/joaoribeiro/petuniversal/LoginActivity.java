@@ -52,7 +52,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity {
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -107,9 +107,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
 
         // Reset errors.
         mEmailView.setError(null);
@@ -158,23 +155,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 if(mAuthTask.get()==null){
                     Log.i("ERROR@LOGIN","API returned null");
                     mAuthTask.cancel(true);
-                    //showProgress(true);
                     //with Firebase
                     setContentForFirebase(email,password);
                 }
             } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                Log.i("CATCH@LOGIN", String.valueOf(e));
             }
         }
     }
 
     private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
+        //Replace this with your own logic
         return true;
     }
 
     private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
+        //Replace this with your own logic
         return true;
     }
 
@@ -218,26 +214,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return null;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
     /**
-     * Represents an asynchronous login/registration task used to authenticate
-     * the user.
+     * Represents an asynchronous login/registration task used to authenticate the user. (with API)
      */
-    public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+    private class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         private String token = null;
         private String userID = null;
@@ -248,12 +228,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         public UserLoginTask(String email, String password) {
             this.email = email;
             URLParameters = "grant_type=password&username="+email+"&password="+password;
-            Log.i("StartBackg@Login","line352");
         }
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            //showProgress(true);
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -283,10 +261,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 //Não percebo este pedaço, não funciona sem ele
                 try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
                     wr.write( postData );
-                    //Log.i("POSTDATA@LOGIN",postData.toString());
                 } catch (IOException e) {
                     Log.i("CATCH@Login", String.valueOf(e));
-                    e.printStackTrace();
                 }
                 Log.i("STEP1@LOGIN","with API");
 
@@ -307,7 +283,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 Log.i("STEP3@LOGIN","with API");
 
                 if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
                     return false;
                 }else{
                     returnado = buffer.toString();
@@ -316,8 +291,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             } catch (IOException e) {
                 Log.i("ERROR@Login", "Token not returned from API!");
-                // If the code didn't successfully get the weather data, there's no point in attemping
-                // to parse it.
                 return false;
             } finally {
                 if (urlConnection != null) {
@@ -327,7 +300,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.i("CATCH@Login", "Error closing stream", e);
+                        Log.i("CATCH@Login", "Error closing stream "+e);
                     }
                 }
             }
@@ -336,7 +309,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected void onPostExecute(Boolean success) {
             mAuthTask = null;
-            //showProgress(true);
 
             if (success) {
                 try {
@@ -345,17 +317,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         token = obj.getString("access_token");
                         userID = obj.getString("user_id");
 
-                        Context context = getApplicationContext();
-                        CharSequence text = "Login Success!";
-                        int duration = Toast.LENGTH_SHORT;
-                        Toast toast = Toast.makeText(context, text, duration);
-                        toast.show();
+                        Toast.makeText(getApplicationContext(), "Login Success! (API)", Toast.LENGTH_LONG).show();
 
                         Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
                         myIntent.putExtra("token", token);
                         myIntent.putExtra("userID", userID);
                         startActivity(myIntent);
-
                     } else {
                         Log.i("ERROR@Login", "Token JSONarray falhado!");
                     }
@@ -365,18 +332,23 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 }
             } else {
                 Log.i("TOKEN@LOGIN","Starting Firebase");
-                // Write a message to the database
+                // for disk persistence
+                FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+                // from database instance get reference of 'users' node
                 DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
+                // Write a message to the database
                 myDatabaseRef.child("users").child("email").setValue(this.email);
-                //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-                //myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
-                //myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
-                Context context = getApplicationContext();
-                CharSequence text = "Login Success!";
-                int duration = Toast.LENGTH_SHORT;
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+                //A parte
+                /*myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
+                myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
+                myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen1");
+                myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("Laranja");
+                myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
+                myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Brufen2");
+                myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("Laranja");*/
+
+                Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
 
                 Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
                 startActivity(myIntent);

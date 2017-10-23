@@ -47,8 +47,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Pet Universal");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
         // Set up the ViewPager with the sections adapter.
         ViewPager mViewPager = (ViewPager) findViewById(R.id.viewpager);
         setupViewPager(mViewPager);
@@ -57,6 +55,34 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("animals");
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                    String value = dataSnapshot1.getValue(String.class);
+                    Log.i("ANIMALS@MAIN", "through firebase: "+value);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });*/
+
+        /*RequestQueue queue = Volley.newRequestQueue(this);
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET,"https://pet-universal-app-id.firebaseio.com/animals", new JSONObject(), future, future);
+        queue.add(request);
+        try {
+            JSONObject response = future.get(); // this will block
+        } catch (InterruptedException e) {
+            // exception handling
+        } catch (ExecutionException e) {
+            // exception handling
+        }*/
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

@@ -10,13 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -41,13 +44,6 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
             String userID = extras.getString("userID");
             String clinicID = extras.getString("clinicID");
             Log.i("STEP0@VISTA", token +","+ userID +","+ clinicID);
-
-            //TODO DataAtual ISO_OFFSET_DATE_TIME	Format	2011-12-03T10:15:30+01:00'
-            /*LocalDate date = LocalDate.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM dd");
-            String text = date.format(formatter);
-            LocalDate parsedDate = LocalDate.parse(text, formatter);
-            Log.i("TIME_NOW",parsedDate.toString());*/
 
             String animalsUrl = "http://dev.petuniversal.com/hospitalization/api/internments?clinic="+ clinicID +"&open=true";
             AsyncGETs getRequest = new AsyncGETs();
@@ -92,7 +88,22 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
                 ll.addView(btn);
             }
         }else {
-            Log.i("ERROR@VISTA", "ERROOO");
+            Log.i("FIREBASE@VISTA", "No extras! Starting Firesbase");
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("animals");
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                        String value = dataSnapshot1.getValue(String.class);
+                        Log.i("ANIMALS@VISTA", "through firebase: "+value);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
         }
 
         Button button = view.findViewById(R.id.animalButton1);

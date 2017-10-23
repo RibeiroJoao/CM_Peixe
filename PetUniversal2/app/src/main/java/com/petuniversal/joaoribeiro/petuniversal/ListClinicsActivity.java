@@ -2,6 +2,7 @@ package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -38,8 +46,8 @@ public class ListClinicsActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.logout_icon);
 
-        /**
-         * PARA APAGAR
+        /*
+         PARA APAGAR
          */
         Button button1 = (Button) findViewById(R.id.button);
         button1.setText("Clínica 1");
@@ -52,18 +60,16 @@ public class ListClinicsActivity extends AppCompatActivity {
 
         String token = null;
         String userID = null;
-         clinicNames = new ArrayList<String>();
-        ArrayList <String> clinicIDs = new ArrayList<>();
+        clinicNames = new ArrayList<>();
+        final ArrayList <String> clinicIDs = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
-
-        if (extras!=null) { // !=null
+        if (extras != null) {
             token = extras.getString("token");
             userID = extras.getString("userID");
-            Log.i("ENTROU@LIST","Tem extras");
-            /**
-             * Async to GET list of clinics
-             */
+            Log.i("STEP0@LIST","Tem extras");
+
+            //Async to GET list of clinics
             String clinicsUrl = "http://dev.petuniversal.com/hospitalization/api/clinics";
             AsyncGETs getRequest = new AsyncGETs();
             Log.i("Token@LIST", token);
@@ -83,27 +89,31 @@ public class ListClinicsActivity extends AppCompatActivity {
                 e1.printStackTrace();
             }
             getRequest.cancel(true);
+
         }else {
             Log.i("FIREBASE@LIST","Entrou no GettingClinics");
-            //clinicNames.add("Clin1 tmp @list1");
-            //clinicNames.add("Clin2 tmp @list1");
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                        String value = dataSnapshot1.getValue(String.class);
+                        clinicNames.add(value);
+                        Log.i("CLINICS@LIST", "through firebase: "+value);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
             //clinicNames = getClinicsForFirebase();
-            // Write a message to the database
-            DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
-            myDatabaseRef.child("clinics").child("name1").setValue("@List Clin 1 firebase");
-            myDatabaseRef.child("clinics").child("name2").setValue("@List Clin 2 firebase");
-            //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
-            //clinicNames.add("Clin1 firebase @list2");
-            //clinicNames.add("Clin2 firebase @list2");
-
-
-            //TODO AsyncTask for getting firstTime ClinicNames
-
-            clinicNames = getClinicsForFirebase();
         }
-        Log.i("SIZE", String.valueOf(clinicNames.size()));
+
+        //Create buttons
+        Log.i("SIZE@LIST", String.valueOf(clinicNames.size()));
         if (clinicNames.size()!=0) {
             for (int i = 0; i <= clinicNames.size() - 1; i++) {
                 LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
@@ -119,7 +129,7 @@ public class ListClinicsActivity extends AppCompatActivity {
                         Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
                         myIntent.putExtra("token", finalToken); //extra
                         myIntent.putExtra("userID", finalUserID);
-                        myIntent.putExtra( "clinicID", finalClinicID);
+                        myIntent.putExtra("clinicID", finalClinicID);
                         startActivity(myIntent);
                     }
                 });
@@ -129,47 +139,35 @@ public class ListClinicsActivity extends AppCompatActivity {
 
     }
 
+
     private ArrayList<String> getClinicsForFirebase() {
 
-        // Write a message to the database
-        DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
-
-        myDatabaseRef.child("clinics").child("name1").setValue("@List Clin 1 firebase");
-        myDatabaseRef.child("clinics").child("name2").setValue("@List Clin 2 firebase");
+        // for disk persistence
         //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
-        //clinicNames.add("Clin1 firebase @list2");
-        //clinicNames.add("Clin2 firebase @list2");
+        //TODO validar user?
 
         Log.i("CLINICS@LIST", "Chegou aqui");
+
         //Get datasnapshot at your "users" root node
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Get map of users in datasnapshot
-                Map<String, String> all = (Map<String, String>) dataSnapshot.getValue();
-                for (Map.Entry<String, String> entry : all.entrySet()){
-                    // addEntryToClinics( entry.getValue());
-                    clinicNames.add(entry.getValue());
+                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                    String value = dataSnapshot1.getValue(String.class);
+                    Log.i("VALUE@LIST",value);
+                    clinicNames.add(value);
                 }
-
-
-                Log.i("NAMES NAMES",clinicNames.toString());
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Failed to read value
-                Log.i("FIREBASE@LIST", "Failed to read database, " + databaseError.toException());
+
             }
         });
         Log.i("CLINICS@LIST", "saiu daqui names="+clinicNames.toString());
         return clinicNames;
-    }
-
-    private void addEntryToClinics(String value) {
-        clinicNames.add(value);
     }
 
 }
