@@ -53,21 +53,21 @@ public class ListClinicsActivity extends AppCompatActivity {
         button1.setText("Clínica 1");
         button1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-            Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
-            startActivity(myIntent);
+                Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
+                startActivity(myIntent);
             }
         });
 
         String token = null;
         String userID = null;
         clinicNames = new ArrayList<>();
-        final ArrayList <String> clinicIDs = new ArrayList<>();
+        final ArrayList<String> clinicIDs = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null) {
+        if (extras != null && extras.containsKey("token")) {
             token = extras.getString("token");
             userID = extras.getString("userID");
-            Log.i("STEP0@LIST","Tem extras");
+            Log.i("STEP0@LIST", "Tem extras");
 
             //Async to GET list of clinics
             String clinicsUrl = "http://dev.petuniversal.com/hospitalization/api/clinics";
@@ -76,7 +76,7 @@ public class ListClinicsActivity extends AppCompatActivity {
             Log.i("USERid@LIST", userID);
             getRequest.execute(clinicsUrl, token, userID);
             try {
-                if(getRequest.get()!=null) {
+                if (getRequest.get() != null) {
                     Log.i("RESULT@LIST", getRequest.get());
                     JSONArray arr = new JSONArray(getRequest.get());
                     for (int i = 0; i < arr.length(); i++) {
@@ -84,37 +84,59 @@ public class ListClinicsActivity extends AppCompatActivity {
                         clinicIDs.add(arr.getJSONObject(i).getString("id"));
                         //Log.i("NAME"+i,clinicNames.get(i)+" added to array");
                     }
-                }else Log.i("ERROR@LIST","Request API is null");
+                } else Log.i("ERROR@LIST", "Request API is null");
             } catch (InterruptedException | ExecutionException | JSONException e1) {
                 e1.printStackTrace();
             }
             getRequest.cancel(true);
 
-        }else {
-            Log.i("FIREBASE@LIST","Entrou no GettingClinics");
+        } else {
+            Log.i("FIREBASE@LIST", "Entrou no GettingClinics");
+            /*if (extras != null && extras.containsKey("clinics")) {
+                clinicNames = (ArrayList<String>) extras.get("clinics");
+                Log.i("TEST@LIST", String.valueOf(extras.get("clinics")));
+
+            }*/
+            //TODO validar user?
+
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                    for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                         String value = dataSnapshot1.getValue(String.class);
                         clinicNames.add(value);
-                        Log.i("CLINICS@LIST", "through firebase: "+value);
+                        Log.i("CLINICS@LIST", "through firebase= " + value);
+                    }
+                    if (clinicNames.size() != 0) {
+                        for (int i = 0; i <= clinicNames.size() - 1; i++) {
+                            LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
+                            Button btn = new Button(ListClinicsActivity.this);
+                            btn.setText(clinicNames.get(i));
+                            btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                            btn.setOnClickListener(new View.OnClickListener() {
+                                public void onClick(View v) {
+                                    // Code here executes on main thread after user presses button
+                                    Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
+                                    startActivity(myIntent);
+                                }
+                            });
+                            ll.addView(btn);
+                        }
                     }
                 }
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-
+                    Log.i("FIREBASE@LIST", "Got canceled");
                 }
             });
-            //clinicNames = getClinicsForFirebase();
 
         }
 
         //Create buttons
         Log.i("SIZE@LIST", String.valueOf(clinicNames.size()));
-        if (clinicNames.size()!=0) {
+        if (clinicNames.size() != 0) {
             for (int i = 0; i <= clinicNames.size() - 1; i++) {
                 LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
                 Button btn = new Button(this);
@@ -136,38 +158,5 @@ public class ListClinicsActivity extends AppCompatActivity {
                 ll.addView(btn);
             }
         }
-
     }
-
-
-    private ArrayList<String> getClinicsForFirebase() {
-
-        // for disk persistence
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-
-        //TODO validar user?
-
-        Log.i("CLINICS@LIST", "Chegou aqui");
-
-        //Get datasnapshot at your "users" root node
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
-                    String value = dataSnapshot1.getValue(String.class);
-                    Log.i("VALUE@LIST",value);
-                    clinicNames.add(value);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-        Log.i("CLINICS@LIST", "saiu daqui names="+clinicNames.toString());
-        return clinicNames;
-    }
-
 }

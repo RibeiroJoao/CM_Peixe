@@ -39,7 +39,7 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
         View view = inflater.inflate(R.layout.fragment_vista_simples,container,false);
 
         Bundle extras = getActivity().getIntent().getExtras();
-        if (extras!=null) { // !=null
+        if (extras!=null && extras.containsKey("token")) {
             String token = extras.getString("token");
             String userID = extras.getString("userID");
             String clinicID = extras.getString("clinicID");
@@ -89,7 +89,7 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
             }
         }else {
             Log.i("FIREBASE@VISTA", "No extras! Starting Firesbase");
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("animals");
+            /*DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("animals");
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -103,7 +103,7 @@ public class FragmentVistaSimples extends Fragment implements View.OnClickListen
                 public void onCancelled(DatabaseError databaseError) {
 
                 }
-            });
+            });*/
         }
 
         Button button = view.findViewById(R.id.animalButton1);

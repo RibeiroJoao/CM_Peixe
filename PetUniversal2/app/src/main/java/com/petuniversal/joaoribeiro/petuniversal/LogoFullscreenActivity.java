@@ -14,13 +14,13 @@ import java.net.InetAddress;
  */
 public class LogoFullscreenActivity extends AppCompatActivity {
 
-    private boolean net = isInternetAvailable();
+    private boolean net;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splashscreen_fullscreen);
-
+        net = isInternetAvailable();
         if (net) {
             //Show splash screen for 3 sec
             new Handler().postDelayed(new Runnable() {
@@ -47,7 +47,8 @@ public class LogoFullscreenActivity extends AppCompatActivity {
 
     public boolean isInternetAvailable() {
         try {
-            InetAddress ipAddr = InetAddress.getByName("127.0.0.1"); //You can replace it with your name
+            InetAddress ipAddr = InetAddress.getByName("217.0.0.1");
+            //Toast.makeText(this, String.valueOf(!ipAddr.equals("")),Toast.LENGTH_LONG).show();
             return !ipAddr.equals("");
 
         } catch (Exception e) {

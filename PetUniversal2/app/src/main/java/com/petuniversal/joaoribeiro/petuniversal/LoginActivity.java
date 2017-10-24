@@ -30,8 +30,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -222,6 +225,7 @@ public class LoginActivity extends AppCompatActivity {
         private String token = null;
         private String userID = null;
         private String email = null;
+        private String fakeUser = null;
         private String URLParameters = null;
         private String returnado = null;        // Will contain the raw JSON response as a string.
 
@@ -339,19 +343,48 @@ public class LoginActivity extends AppCompatActivity {
                 // Write a message to the database
                 myDatabaseRef.child("users").child("email").setValue(this.email);
 
-                //A parte
-                /*myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
-                myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
-                myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen1");
-                myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("Laranja");
-                myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
-                myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Brufen2");
-                myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("Laranja");*/
+                if(fakeUser==null){
+                    fakeUser = "fakeUser@petuniversal.com";
+                    //A parte
+                    /*myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
+                    myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
+                    myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen1");
+                    myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("Laranja");
+                    myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
+                    myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Brufen2");
+                    myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("Laranja");*/
+                }
+
+                /*final ArrayList<String> clinicNames = new ArrayList<>();
+                DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                            String value = dataSnapshot1.getValue(String.class);
+                            clinicNames.add(value);
+                            Log.i("CLINICS@MAIN", "through firebase: "+value);
+                        }
+                        Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
+                        Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
+                        //myIntent.putExtra("fakeToken", fakeUser);
+                        myIntent.putExtra("clinics", clinicNames);
+                        Log.i("SENT@MAIN", String.valueOf(clinicNames));
+                        startActivity(myIntent);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });*/
+
 
                 Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
-
                 Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
+                //myIntent.putExtra("fakeToken", fakeUser);
                 startActivity(myIntent);
+
             }
         }
 
