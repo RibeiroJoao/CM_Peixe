@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.petuniversal.joaoribeiro.petuniversal.AnimalActivity"
-    android:id="@+id/frag_animal_id">
+    android:id="@+id/rl_animal_box">
 
     <LinearLayout
         android:orientation="horizontal"
@@ -25,58 +25,50 @@
             android:id="@+id/animalName"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="ZZZZ" />
+            android:gravity="center" />
     </LinearLayout>
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Espécie: Cão"
-        android:layout_below="@+id/linearLayout"
-        android:layout_alignStart="@+id/textView"
-        android:layout_marginTop="11dp"
-        android:id="@+id/textView4" />
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Raça: Beagle"
-        android:id="@+id/textView"
-        android:layout_below="@+id/textView4"
-        android:layout_alignStart="@+id/textView5" />
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Sexo: M"
-        android:id="@+id/textView5"
-        android:layout_below="@+id/textView"
-        android:layout_alignStart="@+id/textView6" />
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Idade: 2"
-        android:id="@+id/textView6"
-        android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/textView7" />
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Peso: 10kg"
-        android:id="@+id/textView7"
-        android:layout_below="@+id/textView6"
-        android:layout_alignStart="@+id/textView8" />
-    <TextView
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Temperamento: Bom"
-        android:id="@+id/textView8"
-        android:layout_below="@+id/textView7"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="21dp" />
-    <TextView
-        android:id="@+id/animalOwnerName"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Dono(a): Henrique"
-        android:layout_below="@+id/textView8"
-        android:layout_alignStart="@+id/textView8"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ll_animal_details"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="20dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Espécie:"
+            android:layout_below="@+id/linearLayout"
+            android:layout_alignStart="@+id/textView"
+            android:layout_marginTop="11dp"
+            android:id="@+id/textViewEspecie"/>
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Raça:"
+            android:id="@+id/textView"
+            android:layout_below="@+id/textViewEspecie"
+            android:layout_alignStart="@+id/textViewSexo" />
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Sexo: "
+            android:id="@+id/textViewSexo"
+            android:layout_below="@+id/textView"
+            android:layout_alignStart="@+id/textViewIdade" />
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Idade:"
+            android:id="@+id/textViewIdade"
+            android:layout_centerVertical="true"
+            android:layout_alignStart="@+id/textViewPeso" />
+        <TextView
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:text="Peso: "
+            android:id="@+id/textViewPeso"
+            android:layout_below="@+id/textViewIdade" />
+    </LinearLayout>
+
 </RelativeLayout>

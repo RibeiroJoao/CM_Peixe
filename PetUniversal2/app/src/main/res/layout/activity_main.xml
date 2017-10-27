@@ -1,40 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main_content"
+    tools:context="com.petuniversal.joaoribeiro.petuniversal.MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.petuniversal.joaoribeiro.petuniversal.MainActivity">
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:id="@+id/allElemsLayout">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/appbar_padding_top"
-        android:theme="@style/PetTheme.AppBarOverlay">
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/PetTheme.PopupOverlay"/>
-
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/viewpager"
+    <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:stretchColumns="1">
+
+        <TableRow android:id="@+id/HA_T_row1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/cell_outline">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:background="@drawable/cell_animal"
+                android:id="@+id/first_right_cell">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/dog2"
+                    android:id="@+id/first_right_image"
+                    android:gravity="left"
+                    android:layout_margin="10dp"/>
+                <Button
+                    android:id="@+id/zeusButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:text="Zeus" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:id="@+id/first_rigth_cell">
+
+                <TextView
+                    android:id="@+id/textViewDrug1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Vacina 2" />
+            </LinearLayout>
 
 
-</android.support.design.widget.CoordinatorLayout>
+        </TableRow>
+
+
+        <TableRow android:id="@+id/HA_T_row2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/cell_outline">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_gravity="center"
+                android:background="@drawable/cell_animal"
+                android:id="@+id/second_left_cell">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:src="@drawable/dog3"
+                    android:gravity="left"
+                    android:layout_margin="10dp"
+                    android:id="@+id/second_left_image"/>
+                <Button
+                    android:id="@+id/animalButton2"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="Kika" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:id="@+id/second_right_cell">
+                <TextView
+                    android:id="@+id/textViewDrug2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Droga 1"
+                    android:gravity="center"/>
+            </LinearLayout>
+        </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/ll_horaMaior"
+        android:orientation="horizontal"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="264dp">
+
+        <LinearLayout
+            android:layout_width="178dp"
+            android:layout_height="match_parent"
+            android:id="@+id/ll_animal"
+            android:orientation="vertical"
+            android:layout_gravity="left"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/ll_droga"
+            android:orientation="vertical"
+            android:layout_gravity="right"/>
+    </LinearLayout>
+</RelativeLayout>
+

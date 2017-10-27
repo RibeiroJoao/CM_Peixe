@@ -97,7 +97,6 @@ public class ListClinicsActivity extends AppCompatActivity {
                 Log.i("TEST@LIST", String.valueOf(extras.get("clinics")));
 
             }*/
-            //TODO validar user?
 
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
             ref.addListenerForSingleValueEvent(new ValueEventListener() {

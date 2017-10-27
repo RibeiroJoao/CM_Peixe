@@ -3,30 +3,23 @@ package com.petuniversal.joaoribeiro.petuniversal;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
 
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,11 +38,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -66,12 +58,64 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private boolean connectedToInternet;
+    final private ArrayList<String> emailList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null && extras.containsKey("net")) {
+            if (extras.getString("net").equals("true")) {
+                connectedToInternet = true;
+            } else if (extras.getString("net").equals("false")) {
+                connectedToInternet = false;
+            }
+        }else {
+            Log.i("ERROR@LOGIN","Major failure from LogoActivity extras");
+        }
+
+        /**
+         * //TODO Get list of users
+        if(!connectedToInternet) {
+            Log.i("ENTROU@LOGIN", "Not Connected");
+        }
+
+                FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
+
+                DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
+
+                myDatabaseRef.child("users").child("user1").child("email").setValue("testing");
+
+                myDatabaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                            for(DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()){
+                                String key = dataSnapshot2.getKey();
+                                String value = dataSnapshot2.getValue(String.class);
+                                if (key.contains("email")){
+                                    emailList.add(value);
+                                    Log.i("USERS@LOGIN", "through firebase= " + value);
+                                }
+                            }
+                        }
+                        Log.i("EMAILLIST@LOGIN", String.valueOf(emailList));
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.i("FIREBASE@LOGIN", "Got canceled");
+                    }
+                });
+            }
+            Log.i("EMAILLIST2@LOGIN", String.valueOf(emailList));
+
+            //TODO Check currentUser exists in list
+            //TODO skipLogin if user registered, else {
+            */
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         //mEmailView.setText("joao.ribeiro@petuniversal.com");
@@ -100,8 +144,6 @@ public class LoginActivity extends AppCompatActivity {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-
-
     }
 
     /**
@@ -152,18 +194,21 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute();
-            try {
-                if(mAuthTask.get()==null){
+            //mAuthTask = new UserLoginTask(email, password);
+            //mAuthTask.execute();
+            //try {
+                //if(mAuthTask.get()==null){
                     Log.i("ERROR@LOGIN","API returned null");
-                    mAuthTask.cancel(true);
+                    //mAuthTask.cancel(true);
                     //with Firebase
                     setContentForFirebase(email,password);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                Log.i("CATCH@LOGIN", String.valueOf(e));
-            }
+            Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
+            //myIntent.putExtra("fakeToken", fakeUser);
+            startActivity(myIntent);
+                //}
+            //} catch (InterruptedException | ExecutionException e) {
+              //  Log.i("CATCH@LOGIN", String.valueOf(e));
+            //}
         }
     }
 
@@ -177,16 +222,18 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
-    private boolean setContentForFirebase(String email, String password) {
+    private void setContentForFirebase(String email, String password) {
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
+
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
 
-        myDatabaseRef.child("users").child("email").setValue(email);
+        //TODO check user size and add if new
+        myDatabaseRef.child("users").child("user1").child("email").setValue(email);
 
         //myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
         //myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
 
-        return true;
     }
     /**
      * Shows the progress UI and hides the login form.
@@ -247,7 +294,6 @@ public class LoginActivity extends AppCompatActivity {
                 // Construct the URL for the Login
                 Log.i("PROGREEEESSSIING?","1....2....");
                 URL url = new URL("http://dev.petuniversal.com/hospitalization/api/tokens");
-                //URL url = new URL("https://pet-universal-app-id.firebaseio.com/");
 
                 // Create the request and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -262,8 +308,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 Log.i("STEP0@LOGIN","with API");
 
-                //Não percebo este pedaço, não funciona sem ele
-                try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+                    try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
                     wr.write( postData );
                 } catch (IOException e) {
                     Log.i("CATCH@Login", String.valueOf(e));
@@ -336,23 +381,23 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } else {
                 Log.i("TOKEN@LOGIN","Starting Firebase");
-                // for disk persistence
-                FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+
                 // from database instance get reference of 'users' node
                 DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
                 // Write a message to the database
-                myDatabaseRef.child("users").child("email").setValue(this.email);
+                myDatabaseRef.child("users").child("user1").child("email").setValue(this.email);
 
                 if(fakeUser==null){
                     fakeUser = "fakeUser@petuniversal.com";
                     //A parte
-                    /*myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
+                    /* myDatabaseRef.child("users").child("user1").child("firstTimeLogin").setValue(0);
+                    myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
                     myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
                     myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen1");
                     myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("Laranja");
                     myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
                     myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Brufen2");
-                    myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("Laranja");*/
+                    myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("Laranja"); */
                 }
 
                 /*final ArrayList<String> clinicNames = new ArrayList<>();

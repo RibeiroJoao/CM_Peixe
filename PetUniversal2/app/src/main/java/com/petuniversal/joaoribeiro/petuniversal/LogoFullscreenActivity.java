@@ -1,12 +1,14 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
-
-import java.net.InetAddress;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -20,24 +22,31 @@ public class LogoFullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splashscreen_fullscreen);
-        net = isInternetAvailable();
+
+        //Check if Network is available
+        net = isNetworkAvailable();
+        Log.i("NET@LOGO", String.valueOf(net));
         if (net) {
+            Log.i("NET@LOGO", "Yes net!");
             //Show splash screen for 3 sec
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Intent myIntent = new Intent(LogoFullscreenActivity.this, LoginActivity.class);
+                    myIntent.putExtra("net","true");
                     startActivity(myIntent);
                     finish();
                 }
             }, 3000);
         }else{
             Toast.makeText(this, "No Internet connection...",Toast.LENGTH_LONG).show();
+
             //Show splash screen for 3 sec
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     Intent myIntent = new Intent(LogoFullscreenActivity.this, LoginActivity.class);
+                    myIntent.putExtra("net","false");
                     startActivity(myIntent);
                     finish();
                 }
@@ -45,15 +54,11 @@ public class LogoFullscreenActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isInternetAvailable() {
-        try {
-            InetAddress ipAddr = InetAddress.getByName("217.0.0.1");
-            //Toast.makeText(this, String.valueOf(!ipAddr.equals("")),Toast.LENGTH_LONG).show();
-            return !ipAddr.equals("");
-
-        } catch (Exception e) {
-            return false;
-        }
-
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
 }
