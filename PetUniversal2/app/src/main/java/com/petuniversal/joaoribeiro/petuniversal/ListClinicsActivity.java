@@ -1,8 +1,6 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,23 +12,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 
 public class ListClinicsActivity extends AppCompatActivity {
@@ -45,18 +32,6 @@ public class ListClinicsActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Bem vindo à Pet Universal");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.logout_icon);
-
-        /*
-         PARA APAGAR
-         */
-        Button button1 = (Button) findViewById(R.id.button);
-        button1.setText("Clínica 1");
-        button1.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
-                startActivity(myIntent);
-            }
-        });
 
         String token = null;
         String userID = null;
@@ -92,11 +67,6 @@ public class ListClinicsActivity extends AppCompatActivity {
 
         } else {
             Log.i("FIREBASE@LIST", "Entrou no GettingClinics");
-            /*if (extras != null && extras.containsKey("clinics")) {
-                clinicNames = (ArrayList<String>) extras.get("clinics");
-                Log.i("TEST@LIST", String.valueOf(extras.get("clinics")));
-
-            }*/
 
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -110,9 +80,8 @@ public class ListClinicsActivity extends AppCompatActivity {
                     if (clinicNames.size() != 0) {
                         for (int i = 0; i <= clinicNames.size() - 1; i++) {
                             LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
-                            Button btn = new Button(ListClinicsActivity.this);
+                            Button btn = (Button) findViewById(R.id.buttonClinic);
                             btn.setText(clinicNames.get(i));
-                            btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                             btn.setOnClickListener(new View.OnClickListener() {
                                 public void onClick(View v) {
                                     // Code here executes on main thread after user presses button
@@ -120,7 +89,6 @@ public class ListClinicsActivity extends AppCompatActivity {
                                     startActivity(myIntent);
                                 }
                             });
-                            ll.addView(btn);
                         }
                     }
                 }

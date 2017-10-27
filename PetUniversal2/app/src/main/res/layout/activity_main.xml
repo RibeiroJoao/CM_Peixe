@@ -15,6 +15,26 @@
         android:layout_height="match_parent"
         android:stretchColumns="1">
 
+        <TableRow android:id="@+id/HA_T_row0"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/cell_outline">
+            <TextView
+                android:id="@+id/textViewDescri"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="left"
+                android:text="Animal" />
+
+            <TextView
+                android:id="@+id/textViewHour"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="right"
+                android:text="16h" />
+
+        </TableRow>
+
         <TableRow android:id="@+id/HA_T_row1"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -28,7 +48,7 @@
                 <ImageView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/dog2"
+                    android:src="@drawable/dog"
                     android:id="@+id/first_right_image"
                     android:gravity="left"
                     android:layout_margin="10dp"/>
@@ -38,7 +58,7 @@
                     android:layout_height="match_parent"
                     android:gravity="center"
                     style="?android:attr/borderlessButtonStyle"
-                    android:text="Zeus" />
+                    android:text="zzz" />
             </LinearLayout>
 
             <LinearLayout
@@ -50,8 +70,9 @@
                     android:id="@+id/textViewDrug1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:background="@drawable/cell_outline"
                     android:gravity="center"
-                    android:text="Vacina 2" />
+                    android:text="Vac 1" />
             </LinearLayout>
 
 
@@ -71,7 +92,7 @@
                 <ImageView
                     android:layout_width="50dp"
                     android:layout_height="50dp"
-                    android:src="@drawable/dog3"
+                    android:src="@drawable/cat"
                     android:gravity="left"
                     android:layout_margin="10dp"
                     android:id="@+id/second_left_image"/>
@@ -81,7 +102,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="Kika" />
+                    android:text="kkk" />
             </LinearLayout>
 
             <LinearLayout
@@ -92,7 +113,8 @@
                     android:id="@+id/textViewDrug2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Droga 1"
+                    android:background="@drawable/cell_outline"
+                    android:text="Drg 1"
                     android:gravity="center"/>
             </LinearLayout>
         </TableRow>

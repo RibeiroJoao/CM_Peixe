@@ -63,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> drugColors = new ArrayList<>();                 //For Firebase
     //private ArrayList<Bitmap> animalImages = new ArrayList<>();             //For Firebase
     private boolean isFirebase;
+    private View view;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,8 +77,14 @@ public class MainActivity extends AppCompatActivity {
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-        View view = findViewById(R.id.allElemsLayout);
+        view = findViewById(R.id.allElemsLayout);
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String currentDateAndTime = sdf.format(new Date());
+        String currentHour = String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10));
+        int tmp = Integer.parseInt(currentHour)+1;
+        TextView textView = (TextView) findViewById(R.id.textViewHour);
+        textView.setText(tmp+"h");
 
         Bundle extras = getIntent().getExtras();
         if (extras!=null && extras.containsKey("token")) {
@@ -237,6 +245,7 @@ public class MainActivity extends AppCompatActivity {
                                 // Code here executes on main thread after user presses button
                                 Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
                                 myIntent.putExtra("animalName",btn.getText());
+                                myIntent.putExtra("animalID",0);
                                 startActivity(myIntent);
                             }
                         });
@@ -254,6 +263,7 @@ public class MainActivity extends AppCompatActivity {
                                 // Code here executes on main thread after user presses button
                                 Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
                                 myIntent.putExtra("animalName",btn2.getText());
+                                myIntent.putExtra("animalID",1);
                                 startActivity(myIntent);
                             }
                         });
@@ -495,7 +505,7 @@ public class MainActivity extends AppCompatActivity {
 
                 NotificationCompat.Builder notification = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                         .setContentIntent(pendingIntent)
-                        .setSmallIcon(R.drawable.dog2)
+                        .setSmallIcon(R.drawable.dog)
                         .setContentTitle("Pet Universal Notification")
                         .setContentText("Zeus precisa da Vacina 2!")
                         .setAutoCancel(true) //remove when swiped
@@ -535,7 +545,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setNotificationRepeat (View view){
-        Long notificationTime = new GregorianCalendar().getTimeInMillis()+5*1000; //5seconds
+        Long notificationTime = new GregorianCalendar().getTimeInMillis()+5*1000; //5 seconds
         Intent notificationIntent = new Intent(this, NotificationReceiver.class);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTime, PendingIntent.getBroadcast(this,0,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT));

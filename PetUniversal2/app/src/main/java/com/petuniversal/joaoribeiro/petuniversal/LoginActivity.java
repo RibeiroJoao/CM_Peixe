@@ -391,13 +391,13 @@ public class LoginActivity extends AppCompatActivity {
                     fakeUser = "fakeUser@petuniversal.com";
                     //A parte
                     /* myDatabaseRef.child("users").child("user1").child("firstTimeLogin").setValue(0);
-                    myDatabaseRef.child("clinics").child("name1").setValue("@List Clinic 1 firebase");
+                    myDatabaseRef.child("clinics").child("name1").setValue("Clinic 1 firebase");
                     myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
-                    myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen1");
+                    myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen");
                     myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("Laranja");
                     myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
-                    myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Brufen2");
-                    myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("Laranja"); */
+                    myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Vacinação");
+                    myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("colorOrange"); */
                 }
 
                 /*final ArrayList<String> clinicNames = new ArrayList<>();

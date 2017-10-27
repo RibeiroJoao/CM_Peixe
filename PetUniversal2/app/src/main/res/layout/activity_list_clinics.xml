@@ -17,35 +17,15 @@
             <ImageView
                 android:layout_width="100dp"
                 android:layout_height="50dp"
-                android:src="@drawable/logo_hosp1"
+                android:src="@drawable/hosp_vet_generico"
                 android:layout_gravity="left"/>
-            <Button android:id="@+id/button"
+            <Button android:id="@+id/buttonClinic"
                 style="?android:attr/borderlessButtonStyle"
                 android:text="Button1"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
                 android:layout_marginTop="30dp"
-                android:layout_gravity="right"/>
-    </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:layout_height="50dp"
-        android:layout_width="300dp"
-        android:layout_marginTop="18dp"
-        android:id="@+id/linearLayout">
-            <ImageView
-                android:layout_width="100dp"
-                android:layout_height="50dp"
-                android:src="@drawable/logo_hosp1"
-                android:layout_gravity="left"/>
-            <Button android:id="@+id/button2"
-                style="?android:attr/borderlessButtonStyle"
-                android:text="Button2"
-                android:layout_width="200dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="30dp"
-                android:layout_gravity="right"/>
+                android:layout_gravity="right" />
     </LinearLayout>
 
 </LinearLayout>
