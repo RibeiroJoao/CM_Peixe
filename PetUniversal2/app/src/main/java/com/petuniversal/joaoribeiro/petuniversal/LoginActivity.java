@@ -37,6 +37,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A login screen that offers login via email/password.
@@ -113,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         //mEmailView.setText("joao.ribeiro@petuniversal.com");
-        mEmailView.setText("joao@clinicavet.com");
+        mEmailView.setText("joao@clinicaveti.com");
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -188,21 +189,21 @@ public class LoginActivity extends AppCompatActivity {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgress(true);
-            //mAuthTask = new UserLoginTask(email, password);
-            //mAuthTask.execute();
-            //try {
-                //if(mAuthTask.get()==null){
+            mAuthTask = new UserLoginTask(email, password);
+            mAuthTask.execute();
+            try {
+                if(mAuthTask.get()==null){
                     Log.i("ERROR@LOGIN","API returned null");
-                    //mAuthTask.cancel(true);
+                    mAuthTask.cancel(true);
                     //with Firebase
                     setContentForFirebase(email,password);
             Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
             //myIntent.putExtra("fakeToken", fakeUser);
             startActivity(myIntent);
-                //}
-            //} catch (InterruptedException | ExecutionException e) {
-              //  Log.i("CATCH@LOGIN", String.valueOf(e));
-            //}
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                Log.i("CATCH@LOGIN", String.valueOf(e));
+            }
         }
     }
 
@@ -351,16 +352,16 @@ public class LoginActivity extends AppCompatActivity {
 
             if (success) {
                 try {
-                    if (returnado.contains("access_token") && returnado.contains("user_id")) {
+                    if (returnado.contains("access_token")) {   //&& returnado.contains("user_id")
                         JSONObject obj = new JSONObject(returnado);
                         token = obj.getString("access_token");
-                        userID = obj.getString("user_id");
+                        //userID = obj.getString("user_id");
 
-                        Toast.makeText(getApplicationContext(), "Login Success! (API)", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Login Success! (API)", Toast.LENGTH_SHORT).show();
 
                         Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
                         myIntent.putExtra("token", token);
-                        myIntent.putExtra("userID", userID);
+                        //myIntent.putExtra("userID", userID);
                         startActivity(myIntent);
                     } else {
                         Log.i("ERROR@Login", "Token JSONarray falhado!");

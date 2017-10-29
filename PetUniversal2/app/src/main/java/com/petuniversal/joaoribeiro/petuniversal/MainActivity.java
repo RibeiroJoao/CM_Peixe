@@ -1,15 +1,12 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.icu.text.SimpleDateFormat;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -47,10 +44,10 @@ import org.json.JSONException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.LinkedTransferQueue;
 
 import me.tatarka.support.job.JobInfo;
 import me.tatarka.support.job.JobScheduler;
@@ -62,8 +59,9 @@ public class MainActivity extends AppCompatActivity {
     private String animalName;
     private ArrayList<String> animalNames = new ArrayList<>();                //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
     private HashMap<String,String> clinicAnimalIDnInternID = new HashMap<>(); //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
+    private ArrayList <String> clinicAnimalID = new ArrayList<>();
     private HashMap<String,String> drugNamesnInterID = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
-    private HashMap<String,String> drugNamesnID = new HashMap<>();            //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private HashMap<String,Integer> drugStartnPeriod = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
     private ArrayList<String> drugNames = new ArrayList<>();                  //For Firebase
     private ArrayList<String> drugColors = new ArrayList<>();                 //For Firebase
     //private ArrayList<Bitmap> animalImages = new ArrayList<>();             //For Firebase
@@ -86,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         view = findViewById(R.id.allElemsLayout);
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-        String currentDateAndTime = sdf.format(new Date());
+        final String currentDateAndTime = sdf.format(new Date());
         String currentHour = String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10));
         //int tmp = Integer.parseInt(currentHour)+1; //in the summer time
         TextView textView = (TextView) findViewById(R.id.textViewHour);
@@ -98,16 +96,15 @@ public class MainActivity extends AppCompatActivity {
             //API was success
             isFirebase= false;
             String token = extras.getString("token");
-            String userID = extras.getString("userID");
+            //String userID = extras.getString("userID");
             String clinicID = extras.getString("clinicID");
-            Log.i("ENTROU@MAIN", "EXTRAS: token "+token+", userID "+userID+", clinicID "+ clinicID);
+            Log.i("ENTROU@MAIN", "EXTRAS: token "+token+", clinicID "+ clinicID);
 
             //GETTING ClinicAnimals info
             String clinicAnimUrl = "http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic="+clinicID+"&open=true";
             AsyncGETs getRequest = new AsyncGETs();
             Log.i("Token@MAIN", token);
-            Log.i("USERid@MAIN", userID);
-            getRequest.execute(clinicAnimUrl, token, userID);
+            getRequest.execute(clinicAnimUrl, token);
             try {
                 if(getRequest.get()!=null) {
                     Log.i("RESULT@MAIN", getRequest.get());
@@ -118,9 +115,9 @@ public class MainActivity extends AppCompatActivity {
                         int endIndex = tmpName.indexOf('[');
                         String finalName = tmpName.substring(beginIndex,endIndex);
                         animalNames.add(finalName);
-                        clinicAnimalIDnInternID.put(arr.getJSONObject(i).getString("clinicAnimal"),arr.getJSONObject(i).getString("id"));
-                        Log.i("HASMAP@MAIN",clinicAnimalIDnInternID.toString());
+                        clinicAnimalID.add(arr.getJSONObject(i).getString("clinicAnimal"));
                     }
+                    Log.i("CLINaniID@MAIN",clinicAnimalID.toString());
                 }else Log.i("ERROR@MAIN","Request API is null");
             } catch (InterruptedException | ExecutionException | JSONException e1) {
                 e1.printStackTrace();
@@ -130,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
             //GETTING ClinicAnimals info
             String drugsUrl = "http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic="+clinicID;
             AsyncGETs getRequest2 = new AsyncGETs();
-            getRequest2.execute(drugsUrl, token, userID);
+            getRequest2.execute(drugsUrl, token);
             try {
                 if(getRequest2.get()!=null) {
                     Log.i("RESULT2@MAIN", getRequest2.get());
@@ -138,13 +135,13 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = 0; i < arr.length(); i++) {
                         String name = arr.getJSONObject(i).getString("name");
                         drugNamesnInterID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("internment"));
-                        drugNamesnID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("id"));
-                        Log.i("DrugNames&InternID@MAIN",drugNamesnInterID.toString());
-                        Log.i("DrugNames&ID@MAIN",drugNamesnID.toString());
+                        drugStartnPeriod.put(arr.getJSONObject(i).getString("started"),arr.getJSONObject(i).getInt("period"));
                     }
+                    Log.i("DrugNames&InternID@MAIN",drugNamesnInterID.toString());
+                    Log.i("drugStartnPeriod@MAIN",drugStartnPeriod.toString());
                 }else Log.i("ERROR@MAIN","Request API is null");
-            } catch (InterruptedException | ExecutionException | JSONException e1) {
-                e1.printStackTrace();
+           } catch (InterruptedException | ExecutionException | JSONException e1) {
+               Log.i("CATCH3@MAIN", String.valueOf(e1));
             }
             getRequest2.cancel(true);
 
@@ -153,8 +150,9 @@ public class MainActivity extends AppCompatActivity {
                 Button btn = new Button(this);
                 btn.setText(animalNames.get(i));
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
                 final String finalToken = token;
-                final String finalUserID = userID;
+                final String clinical_animal_id = clinicAnimalID.get(i);
                 final String animalName = animalNames.get(i);
 
                 btn.setOnClickListener(new View.OnClickListener() {
@@ -162,18 +160,22 @@ public class MainActivity extends AppCompatActivity {
                         // Code here executes on main thread after user presses button
                         Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
                         myIntent.putExtra("token", finalToken); //extras
-                        myIntent.putExtra("userID", finalUserID);
+                        myIntent.putExtra("clinical_animal_id", clinical_animal_id);
                         myIntent.putExtra("animalName", animalName);
                         startActivity(myIntent);
                     }
                 });
                 ll.addView(btn);
             }
+            int iterator = -1;
             for ( final Map.Entry<String, String> entry : drugNamesnInterID.entrySet()) {
+                iterator += 1;
                 LinearLayout ll = view.findViewById(R.id.ll_droga);
                 final Button btn = new Button(this);
                 btn.setText(entry.getKey());
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+                //TODO Calc current Color ? get actions para verificar se já não foi feita?
 
                 btn.setOnTouchListener(new View.OnTouchListener() {
                     private GestureDetector gestureDetector = new GestureDetector(getApplication(), new GestureDetector.SimpleOnGestureListener() {
@@ -182,8 +184,7 @@ public class MainActivity extends AppCompatActivity {
                         public boolean onDoubleTap(MotionEvent e) {
                             Log.i("DoubleTAP@MAIN", "onDoubleTap");
                             btn.setBackgroundResource(R.color.colorPet);
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-                            String currentDateAndTime = sdf.format(new Date());
+
                             //ISO_OFFSET_DATE_TIME	Date Time with Offset	2017-10-20T10:15:30+01:00'
                             String prettyDateAndTime = String.valueOf(currentDateAndTime.charAt(0))+String.valueOf(currentDateAndTime.charAt(1))+
                                     String.valueOf(currentDateAndTime.charAt(2))+String.valueOf(currentDateAndTime.charAt(3))+'-'+
@@ -192,7 +193,9 @@ public class MainActivity extends AppCompatActivity {
                                     String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10))+':'+
                                     "00:00.000+0000";
                             Log.i("TIME@MAIN",prettyDateAndTime);
-                            //TODO metodo que vai criar action verde (papel)
+
+                            //TODO metodo que vai criar action verde
+
                             Toast.makeText( getApplication(), "Clicaste em "+entry.getKey() , Toast.LENGTH_LONG).show();
 
                             return super.onDoubleTap(e);
@@ -277,11 +280,6 @@ public class MainActivity extends AppCompatActivity {
                         @SuppressLint("WrongViewCast") final TextView textView = (TextView) findViewById(R.id.textViewDrug1);
                         textView.setText(drugNames.get(0));
 
-                        if(drugColors.get(0).contains("colorOrange")) {
-                            textView.setBackgroundResource(R.color.colorOrange);
-                        }else if(drugColors.get(0).contains("colorPet")) {
-                            textView.setBackgroundResource(R.color.colorPet);
-                        }
                         textView.setOnTouchListener(new View.OnTouchListener() {
                             private GestureDetector gestureDetector = new GestureDetector(getApplication(), new GestureDetector.SimpleOnGestureListener() {
                                 @RequiresApi(api = Build.VERSION_CODES.N)

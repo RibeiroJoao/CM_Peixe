@@ -41,15 +41,16 @@ public class ListClinicsActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey("token")) {
             token = extras.getString("token");
-            userID = extras.getString("userID");
+            //userID = extras.getString("userID");
             Log.i("STEP0@LIST", "Tem extras");
 
             //Async to GET list of clinics
-            String clinicsUrl = "http://dev.petuniversal.com/hospitalization/api/clinics";
+            String clinicsUrl = "http://dev.petuniversal.com:8080/hospitalization/api/clinics";
             AsyncGETs getRequest = new AsyncGETs();
             Log.i("Token@LIST", token);
-            Log.i("USERid@LIST", userID);
-            getRequest.execute(clinicsUrl, token, userID);
+            //Log.i("USERid@LIST", userID);
+            //getRequest.execute(clinicsUrl, token, userID);
+            getRequest.execute(clinicsUrl, token);
             try {
                 if (getRequest.get() != null) {
                     Log.i("RESULT@LIST", getRequest.get());
@@ -110,14 +111,14 @@ public class ListClinicsActivity extends AppCompatActivity {
                 btn.setText(clinicNames.get(i));
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 final String finalToken = token;
-                final String finalUserID = userID;
+                //final String finalUserID = userID;
                 final String finalClinicID = clinicIDs.get(i);
                 btn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         // Code here executes on main thread after user presses button
                         Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
                         myIntent.putExtra("token", finalToken); //extra
-                        myIntent.putExtra("userID", finalUserID);
+                        //myIntent.putExtra("userID", finalUserID);
                         myIntent.putExtra("clinicID", finalClinicID);
                         startActivity(myIntent);
                     }

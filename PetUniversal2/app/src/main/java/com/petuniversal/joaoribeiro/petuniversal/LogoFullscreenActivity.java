@@ -27,7 +27,6 @@ public class LogoFullscreenActivity extends AppCompatActivity {
         net = isNetworkAvailable();
         Log.i("NET@LOGO", String.valueOf(net));
         if (net) {
-            Log.i("NET@LOGO", "Yes net!");
             //Show splash screen for 3 sec
             new Handler().postDelayed(new Runnable() {
                 @Override

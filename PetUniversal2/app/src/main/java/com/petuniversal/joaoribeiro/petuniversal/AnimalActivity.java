@@ -14,11 +14,19 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.concurrent.ExecutionException;
 
 public class AnimalActivity extends AppCompatActivity {
 
+    private String token;
+    private String clinical_animal_id;
+
     private String animalName;
+
     private int animalID;
     private Bitmap image;
     private String especie;
@@ -119,6 +127,80 @@ public class AnimalActivity extends AppCompatActivity {
                 });
             }
 
+        }else{ //THROUGH API
+            animalName = extras.getString("animalName");
+            token = extras.getString("token");
+            clinical_animal_id = extras.getString("clinical_animal_id");
+            Log.i("EXTRAS@ANIMAL",animalName+", clinical_animal_id= "+clinical_animal_id);
+
+            int animalIDint = 0;
+            String getAnimalIDurl = "http://dev.petuniversal.com:8080/hospitalization/api/clinicAnimals/"+clinical_animal_id;
+            AsyncGETs getRequest3 = new AsyncGETs();
+            getRequest3.execute(getAnimalIDurl, token);
+            try {
+                if(getRequest3.get()!=null) {
+                    Log.i("RESULT1@ANIMAL", getRequest3.get());
+                    animalIDint = new JSONObject(getRequest3.get()).getInt("animal");
+                    Log.i("animalIDint@ANIMAL", String.valueOf(animalIDint));
+                }else Log.i("ERROR@ANIMAL","Request API is null");
+            } catch (InterruptedException | ExecutionException | JSONException e1) {
+                Log.i("CATCH1@ANIMAL", String.valueOf(e1));
+            }
+            getRequest3.cancel(true);
+
+            int racaInt;
+            String raca = null;
+            int pesoInt;
+            String sexo;
+            int especieInt;
+            String especie = null;
+            String esterilizado;
+            String getAnimalDetailsURL = "http://dev.petuniversal.com:8080/hospitalization/api/animals/"+animalIDint;
+            AsyncGETs getRequest4 = new AsyncGETs();
+            getRequest4.execute(getAnimalDetailsURL, token);
+            try {
+                if(getRequest4.get()!=null) {
+                    Log.i("RESULT2@ANIMAL", getRequest4.get());
+                    JSONObject arr = new JSONObject(getRequest4.get());
+                    racaInt = arr.getInt("breed");
+                    if (racaInt==85){
+                        raca = "German Shepard";
+                    }else if (racaInt == 7){
+                        raca = "Bengal";
+                    }else if (racaInt == 117){
+                        raca = "Labrador Retriever";
+                    }
+                    pesoInt = arr.getInt("currentWeightValue");
+                    sexo = arr.getString("sex");
+                    especieInt = arr.getInt("species");
+                    if(especieInt==9615){
+                        especie = "Cão";
+                        ImageView imageView = (ImageView) findViewById(R.id.animalImg_animalDetails);
+                        imageView.setBackgroundResource(R.drawable.dog);
+                    } else if(especieInt==9685){
+                        especie = "Gato";
+                        ImageView imageView = (ImageView) findViewById(R.id.animalImg_animalDetails);
+                        imageView.setBackgroundResource(R.drawable.cat);
+                    }
+                    esterilizado = arr.getString("sterilized");
+                    Log.i("animalDetails@ANIMAL","raca("+raca+"), peso("+pesoInt+"), especie("+especie+"), sexo("+sexo+"), esterilizado("+esterilizado+")");
+
+                    TextView textView = (TextView) findViewById(R.id.textViewEspecie);
+                    textView.setText("Espécie : "+especie);
+                    TextView textView2 = (TextView) findViewById(R.id.textViewPeso);
+                    textView2.setText("Peso : "+pesoInt+" kg");
+                    TextView textView3 = (TextView) findViewById(R.id.textViewRaca);
+                    textView3.setText("Raça : "+raca);
+                    TextView textView4 = (TextView) findViewById(R.id.textViewSexo);
+                    textView4.setText("Sexo : "+sexo);
+                    TextView textView5 = (TextView) findViewById(R.id.textViewIdade);
+                    textView5.setText("Esterilizado : "+esterilizado);
+
+                }else Log.i("ERROR@ANIMAL","Request API is null");
+            } catch (InterruptedException | ExecutionException | JSONException e1) {
+                Log.i("CATCH2@ANIMAL", String.valueOf(e1));
+            }
+            getRequest4.cancel(true);
 
         }
 
