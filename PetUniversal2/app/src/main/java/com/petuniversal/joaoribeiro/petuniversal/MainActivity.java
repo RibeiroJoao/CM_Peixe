@@ -11,6 +11,7 @@ import android.icu.text.SimpleDateFormat;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
@@ -41,13 +42,20 @@ import com.google.zxing.integration.android.IntentResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.LinkedTransferQueue;
 
 import me.tatarka.support.job.JobInfo;
 import me.tatarka.support.job.JobScheduler;
@@ -55,13 +63,16 @@ import me.tatarka.support.os.PersistableBundle;
 
 public class MainActivity extends AppCompatActivity {
 
+    private MakeActionColorPet actionTask = null;
     private NfcAdapter nfcAdapter;
     private String animalName;
     private ArrayList<String> animalNames = new ArrayList<>();                //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
     private HashMap<String,String> clinicAnimalIDnInternID = new HashMap<>(); //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
     private ArrayList <String> clinicAnimalID = new ArrayList<>();
-    private HashMap<String,String> drugNamesnInterID = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private HashMap<String,String> drugNamesnID = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
     private HashMap<String,Integer> drugStartnPeriod = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private ArrayList<Integer> drugPeriods = new ArrayList<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private ArrayList<String> drugStarts = new ArrayList<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
     private ArrayList<String> drugNames = new ArrayList<>();                  //For Firebase
     private ArrayList<String> drugColors = new ArrayList<>();                 //For Firebase
     //private ArrayList<Bitmap> animalImages = new ArrayList<>();             //For Firebase
@@ -95,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
         if (extras!=null && extras.containsKey("token")) {
             //API was success
             isFirebase= false;
-            String token = extras.getString("token");
+            final String token = extras.getString("token");
             //String userID = extras.getString("userID");
             String clinicID = extras.getString("clinicID");
             Log.i("ENTROU@MAIN", "EXTRAS: token "+token+", clinicID "+ clinicID);
@@ -133,11 +144,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("RESULT2@MAIN", getRequest2.get());
                     JSONArray arr = new JSONArray(getRequest2.get());
                     for (int i = 0; i < arr.length(); i++) {
-                        String name = arr.getJSONObject(i).getString("name");
-                        drugNamesnInterID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("internment"));
+                        drugNamesnID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("id"));
                         drugStartnPeriod.put(arr.getJSONObject(i).getString("started"),arr.getJSONObject(i).getInt("period"));
+                        drugPeriods.add(arr.getJSONObject(i).getInt("period"));
+                        drugStarts.add(arr.getJSONObject(i).getString("started"));
                     }
-                    Log.i("DrugNames&InternID@MAIN",drugNamesnInterID.toString());
+                    Log.i("DrugNames&InternID@MAIN", drugNamesnID.toString());
                     Log.i("drugStartnPeriod@MAIN",drugStartnPeriod.toString());
                 }else Log.i("ERROR@MAIN","Request API is null");
            } catch (InterruptedException | ExecutionException | JSONException e1) {
@@ -168,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 ll.addView(btn);
             }
             int iterator = -1;
-            for ( final Map.Entry<String, String> entry : drugNamesnInterID.entrySet()) {
+            for ( final Map.Entry<String, String> entry : drugNamesnID.entrySet()) {
                 iterator += 1;
                 LinearLayout ll = view.findViewById(R.id.ll_droga);
                 final Button btn = new Button(this);
@@ -176,6 +188,24 @@ public class MainActivity extends AppCompatActivity {
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
                 //TODO Calc current Color ? get actions para verificar se já não foi feita?
+                //ISO_OFFSET_DATE_TIME	Date Time with Offset	2017-10-20T10:15:30+01:00'
+                final String prettyDateAndTime = String.valueOf(currentDateAndTime.charAt(0))+String.valueOf(currentDateAndTime.charAt(1))+
+                        String.valueOf(currentDateAndTime.charAt(2))+String.valueOf(currentDateAndTime.charAt(3))+'-'+
+                        String.valueOf(currentDateAndTime.charAt(4))+String.valueOf(currentDateAndTime.charAt(5))+'-'+
+                        String.valueOf(currentDateAndTime.charAt(6))+String.valueOf(currentDateAndTime.charAt(7))+'T'+
+                        String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10))+':'+
+                        "00:00.000+0000";
+                Log.i("TIME@MAIN",prettyDateAndTime);
+
+                int drugHour = Integer.parseInt(String.valueOf(drugStarts.get(iterator).charAt(9) + drugStarts.get(iterator).charAt(10)));
+                Log.i("HOUR****@MAIN", String.valueOf(drugHour%2));
+                if(drugPeriods.get(iterator)==1){
+                    btn.setBackgroundResource(R.color.colorOrange);
+                }else if (drugPeriods.get(iterator) == 2 && (Integer.parseInt(currentHour)%2)==0){
+                    btn.setBackgroundResource(R.color.colorOrange);
+                }else{
+                    btn.setVisibility(View.INVISIBLE);
+                }
 
                 btn.setOnTouchListener(new View.OnTouchListener() {
                     private GestureDetector gestureDetector = new GestureDetector(getApplication(), new GestureDetector.SimpleOnGestureListener() {
@@ -183,21 +213,14 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public boolean onDoubleTap(MotionEvent e) {
                             Log.i("DoubleTAP@MAIN", "onDoubleTap");
-                            btn.setBackgroundResource(R.color.colorPet);
-
-                            //ISO_OFFSET_DATE_TIME	Date Time with Offset	2017-10-20T10:15:30+01:00'
-                            String prettyDateAndTime = String.valueOf(currentDateAndTime.charAt(0))+String.valueOf(currentDateAndTime.charAt(1))+
-                                    String.valueOf(currentDateAndTime.charAt(2))+String.valueOf(currentDateAndTime.charAt(3))+'-'+
-                                    String.valueOf(currentDateAndTime.charAt(4))+String.valueOf(currentDateAndTime.charAt(5))+'-'+
-                                    String.valueOf(currentDateAndTime.charAt(6))+String.valueOf(currentDateAndTime.charAt(7))+'T'+
-                                    String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10))+':'+
-                                    "00:00.000+0000";
-                            Log.i("TIME@MAIN",prettyDateAndTime);
 
                             //TODO metodo que vai criar action verde
+                            btn.setBackgroundResource(R.color.colorPet);
+                            actionTask = new MakeActionColorPet(token, prettyDateAndTime, Integer.parseInt(entry.getValue()), 222); //TODO 222 is static for joao@clinicaveti.com
+                            actionTask.execute();
+
 
                             Toast.makeText( getApplication(), "Clicaste em "+entry.getKey() , Toast.LENGTH_LONG).show();
-
                             return super.onDoubleTap(e);
                         }
                     });
@@ -340,11 +363,6 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("FIREBASE@MAIN", "Got canceled");
                 }
             });
-        }
-
-        if (!String.valueOf(view.findViewById(R.id.textViewDrug1).getBackground()).contains("colorPet")){
-            view.findViewById(R.id.textViewDrug1).setBackgroundResource(R.color.colorOrange);
-            view.findViewById(R.id.textViewDrug1).setMinimumHeight(50);
         }
 
         //DOUBLE TAP
@@ -570,4 +588,132 @@ public class MainActivity extends AppCompatActivity {
         jobScheduler.schedule(jobBuilder.build());
     }
 
+
+    /**
+     * Represents an asynchronous action task used to check an activity. (with API)
+     * Parameters = String date_time, int drugID, int clinicPersonID
+     */
+    private class MakeActionColorPet extends AsyncTask<Void, Void, Boolean> {
+
+        private String token = null;
+        private int drugID;
+        private String date_time;
+        private int doer;
+        private String URLParameters = null;
+        private String returnado = null;        // Will contain the raw JSON response as a string.
+
+        public MakeActionColorPet(String token, String date_time, int drugID, int clinicPersonID) {
+            this.token = token;
+            this.date_time = date_time;
+            this.drugID = drugID;
+            this.doer = clinicPersonID;
+
+            URLParameters = "{\n" +
+                    "\t\"status\":1,\n" +
+                    "    \"started\": \""+date_time+"\" ,\n" +
+                    "    \"drug\": "+drugID+",\n" +
+                    " \t\"doer\": "+doer+"\n" +
+                    "}";
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            byte[] postData = URLParameters.getBytes( StandardCharsets.UTF_8 );
+            int postDataLength = postData.length;
+
+            try {
+                // Construct the URL for the Login
+                URL url = new URL("http://dev.petuniversal.com:8080/hospitalization/api/actions");
+
+                // Create the request and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                //urlConnection.setDoOutput(true);
+                urlConnection.setInstanceFollowRedirects(false);
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/json");
+                urlConnection.setRequestProperty("Authorization", "Bearer " + token);
+                urlConnection.setRequestProperty("charset", "utf-8");
+                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength ));
+                urlConnection.setUseCaches(false);
+                urlConnection.connect();
+
+                Log.i("Action0@MAIN","with API");
+
+                try(DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+                    wr.write( postData );
+                } catch (IOException e) {
+                    Log.i("CATCH@MAIN", String.valueOf(e));
+                }
+                Log.i("Action1@MAIN","with API");
+
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                Log.i("Action2@MAIN","with API");
+
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+                Log.i("Action3@MAIN","with API");
+
+                if (buffer.length() == 0) {
+                    return false;
+                }else{
+                    returnado = buffer.toString();
+                    Log.i("RETURNED@MAIN",returnado);
+                    return true;
+                }
+            } catch (IOException e) {
+                Log.i("ERROR@MAIN_Async", "Token not returned from API!");
+                return false;
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.i("CATCH@MAIN_Async", "Error closing stream "+e);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            actionTask = null;
+
+            if (success) {
+                if (returnado.contains("created")) {
+                    Toast.makeText(getApplicationContext(), "Action registered successly! ", Toast.LENGTH_SHORT).show();
+                    Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
+                    myIntent.putExtra("token", token);
+                    startActivity(myIntent);
+                } else {
+                    Log.w("ERROR@MAIN", "Action não returnou o esperado!");
+                }
+            }else {
+                Log.w("ERROR@MAIN", "ACTION falhada por completo!");
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            actionTask = null;
+        }
+
+    }
 }
+
+
