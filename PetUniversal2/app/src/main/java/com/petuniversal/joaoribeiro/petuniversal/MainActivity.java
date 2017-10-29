@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -51,19 +52,24 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import me.tatarka.support.job.JobInfo;
+import me.tatarka.support.job.JobScheduler;
+import me.tatarka.support.os.PersistableBundle;
+
 public class MainActivity extends AppCompatActivity {
 
     private NfcAdapter nfcAdapter;
     private String animalName;
-    private ArrayList<String> animalNames = new ArrayList<>();                //http://dev.petuniversal.com/hospitalization/api/internments?clinic=53&open=true
-    private HashMap<String,String> clinicAnimalIDnInternID = new HashMap<>(); //http://dev.petuniversal.com/hospitalization/api/internments?clinic=53&open=true
-    private HashMap<String,String> drugNamesnInterID = new HashMap<>();       //http://dev.petuniversal.com/hospitalization/api/drugs?clinic=53
-    private HashMap<String,String> drugNamesnID = new HashMap<>();            //http://dev.petuniversal.com/hospitalization/api/drugs?clinic=53
+    private ArrayList<String> animalNames = new ArrayList<>();                //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
+    private HashMap<String,String> clinicAnimalIDnInternID = new HashMap<>(); //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
+    private HashMap<String,String> drugNamesnInterID = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private HashMap<String,String> drugNamesnID = new HashMap<>();            //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
     private ArrayList<String> drugNames = new ArrayList<>();                  //For Firebase
     private ArrayList<String> drugColors = new ArrayList<>();                 //For Firebase
     //private ArrayList<Bitmap> animalImages = new ArrayList<>();             //For Firebase
     private boolean isFirebase;
     private View view;
+    private JobScheduler jobScheduler;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("ClickableViewAccessibility")
@@ -82,9 +88,10 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String currentDateAndTime = sdf.format(new Date());
         String currentHour = String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10));
-        int tmp = Integer.parseInt(currentHour)+1;
+        //int tmp = Integer.parseInt(currentHour)+1; //in the summer time
         TextView textView = (TextView) findViewById(R.id.textViewHour);
-        textView.setText(tmp+"h");
+        //textView.setText(tmp+"h");
+        textView.setText(currentHour+"h");
 
         Bundle extras = getIntent().getExtras();
         if (extras!=null && extras.containsKey("token")) {
@@ -96,14 +103,14 @@ public class MainActivity extends AppCompatActivity {
             Log.i("ENTROU@MAIN", "EXTRAS: token "+token+", userID "+userID+", clinicID "+ clinicID);
 
             //GETTING ClinicAnimals info
-            String clinicAnimUrl = "http://dev.petuniversal.com/hospitalization/api/internments?clinic="+clinicID+"&open=true";
+            String clinicAnimUrl = "http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic="+clinicID+"&open=true";
             AsyncGETs getRequest = new AsyncGETs();
-            Log.i("Token@HORA", token);
-            Log.i("USERid@HORA", userID);
+            Log.i("Token@MAIN", token);
+            Log.i("USERid@MAIN", userID);
             getRequest.execute(clinicAnimUrl, token, userID);
             try {
                 if(getRequest.get()!=null) {
-                    Log.i("RESULT@HORA", getRequest.get());
+                    Log.i("RESULT@MAIN", getRequest.get());
                     JSONArray arr = new JSONArray(getRequest.get());
                     for (int i = 0; i < arr.length(); i++) {
                         String tmpName = arr.getJSONObject(i).getString("name");
@@ -112,30 +119,30 @@ public class MainActivity extends AppCompatActivity {
                         String finalName = tmpName.substring(beginIndex,endIndex);
                         animalNames.add(finalName);
                         clinicAnimalIDnInternID.put(arr.getJSONObject(i).getString("clinicAnimal"),arr.getJSONObject(i).getString("id"));
-                        Log.i("HASMAP@HORA",clinicAnimalIDnInternID.toString());
+                        Log.i("HASMAP@MAIN",clinicAnimalIDnInternID.toString());
                     }
-                }else Log.i("ERROR@HORA","Request API is null");
+                }else Log.i("ERROR@MAIN","Request API is null");
             } catch (InterruptedException | ExecutionException | JSONException e1) {
                 e1.printStackTrace();
             }
             getRequest.cancel(true);
 
             //GETTING ClinicAnimals info
-            String drugsUrl = "http://dev.petuniversal.com/hospitalization/api/drugs?clinic="+clinicID;
+            String drugsUrl = "http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic="+clinicID;
             AsyncGETs getRequest2 = new AsyncGETs();
             getRequest2.execute(drugsUrl, token, userID);
             try {
                 if(getRequest2.get()!=null) {
-                    Log.i("RESULT2@HORA", getRequest2.get());
+                    Log.i("RESULT2@MAIN", getRequest2.get());
                     JSONArray arr = new JSONArray(getRequest2.get());
                     for (int i = 0; i < arr.length(); i++) {
                         String name = arr.getJSONObject(i).getString("name");
                         drugNamesnInterID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("internment"));
                         drugNamesnID.put(arr.getJSONObject(i).getString("name"),arr.getJSONObject(i).getString("id"));
-                        Log.i("DrugNames&InternID@HORA",drugNamesnInterID.toString());
-                        Log.i("DrugNames&ID@HORA",drugNamesnID.toString());
+                        Log.i("DrugNames&InternID@MAIN",drugNamesnInterID.toString());
+                        Log.i("DrugNames&ID@MAIN",drugNamesnID.toString());
                     }
-                }else Log.i("ERROR@HORA","Request API is null");
+                }else Log.i("ERROR@MAIN","Request API is null");
             } catch (InterruptedException | ExecutionException | JSONException e1) {
                 e1.printStackTrace();
             }
@@ -168,15 +175,12 @@ public class MainActivity extends AppCompatActivity {
                 btn.setText(entry.getKey());
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-                //TODO get buttonColor according to...
-                btn.setBackgroundResource(R.color.colorOrange);
-
                 btn.setOnTouchListener(new View.OnTouchListener() {
                     private GestureDetector gestureDetector = new GestureDetector(getApplication(), new GestureDetector.SimpleOnGestureListener() {
                         @RequiresApi(api = Build.VERSION_CODES.N)
                         @Override
                         public boolean onDoubleTap(MotionEvent e) {
-                            Log.i("DoubleTAP@HORA", "onDoubleTap");
+                            Log.i("DoubleTAP@MAIN", "onDoubleTap");
                             btn.setBackgroundResource(R.color.colorPet);
                             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
                             String currentDateAndTime = sdf.format(new Date());
@@ -187,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
                                     String.valueOf(currentDateAndTime.charAt(6))+String.valueOf(currentDateAndTime.charAt(7))+'T'+
                                     String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10))+':'+
                                     "00:00.000+0000";
-                            Log.i("TIME@HORA",prettyDateAndTime);
+                            Log.i("TIME@MAIN",prettyDateAndTime);
                             //TODO metodo que vai criar action verde (papel)
                             Toast.makeText( getApplication(), "Clicaste em "+entry.getKey() , Toast.LENGTH_LONG).show();
 
@@ -196,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                     });
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-                        Log.i("TAP@HORA", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
+                        Log.i("TAP@MAIN", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
                         gestureDetector.onTouchEvent(event);
                         return true;
                     }
@@ -204,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                 ll.addView(btn);
             }
         }else{
-            Log.i("FIREBASE@HORA", "Entrar no Firebase");
+            Log.i("FIREBASE@MAIN", "Entrar no Firebase");
             //API was unsuccessful
             isFirebase= true;
             final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("animals");
@@ -335,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    Log.i("FIREBASE@HORA", "Got canceled");
+                    Log.i("FIREBASE@MAIN", "Got canceled");
                 }
             });
         }
@@ -350,7 +354,7 @@ public class MainActivity extends AppCompatActivity {
             private GestureDetector gestureDetector = new GestureDetector(getApplication(), new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
-                    Log.i("DoubleTAP@HORA", "onDoubleTap");
+                    Log.i("DoubleTAP@MAIN", "onDoubleTap");
                     findViewById(R.id.textViewDrug1).setBackgroundResource(R.color.colorPet);
                     findViewById(R.id.textViewDrug1).setMinimumHeight(50);
                     return super.onDoubleTap(e);
@@ -359,7 +363,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                Log.i("TAP@HORA", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
+                Log.i("TAP@MAIN", "Raw event: " + event.getAction() + ", (" + event.getRawX() + ", " + event.getRawY() + ")");
                 gestureDetector.onTouchEvent(event);
                 return true;
             }
@@ -370,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
     public static void changeColorToGreenAtFirebase(Integer id) {
         // from database instance get reference of 'users' node
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
-        Log.i("ENTROU@HORA","turnButtonGreen");
+        Log.i("ENTROU@MAIN","turnButtonGreen");
         if (id==0) {
             myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("colorPet");
         } else if (id==1){
@@ -469,8 +473,7 @@ public class MainActivity extends AppCompatActivity {
         int notifID = 100;
 
         if (id == R.id.menu_qrcode) {
-            Toast toast = Toast.makeText(getApplicationContext(), "Opening camera...", Toast.LENGTH_SHORT);
-            toast.show();
+            Toast.makeText(getApplicationContext(), "Opening camera...", Toast.LENGTH_SHORT).show();
 
             IntentIntegrator integrator = new IntentIntegrator(MainActivity.this);
             integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE_TYPES);
@@ -486,14 +489,12 @@ public class MainActivity extends AppCompatActivity {
 
             if(item.isChecked()){
                 item.setChecked(false);
-                Toast toast = Toast.makeText(getApplicationContext(), "Notifications are now OFF!", Toast.LENGTH_SHORT);
-                toast.show();
+                Toast.makeText(getApplicationContext(), "Notifications are now OFF!", Toast.LENGTH_SHORT).show();
                 notificationManager.cancel(notifID);
             }
             else {
                 item.setChecked(true);
-                Toast toast = Toast.makeText(getApplicationContext(), "Notifications are now ON!", Toast.LENGTH_SHORT);
-                toast.show();
+                Toast.makeText(getApplicationContext(), "Notifications are now ON!", Toast.LENGTH_SHORT).show();
 
                 Intent intent = new Intent(this, MainActivity.class);
 
@@ -507,7 +508,7 @@ public class MainActivity extends AppCompatActivity {
                         .setContentIntent(pendingIntent)
                         .setSmallIcon(R.drawable.dog)
                         .setContentTitle("Pet Universal Notification")
-                        .setContentText("Zeus precisa da Vacina 2!")
+                        .setContentText("Z precisa da Vac (Instantanea)")
                         .setAutoCancel(true) //remove when swiped
                         .setTicker("Pet has new task!")
                         .setDefaults(NotificationCompat.DEFAULT_SOUND);
@@ -515,6 +516,22 @@ public class MainActivity extends AppCompatActivity {
                 notificationManager.notify(notifID, notification.build());
             }
             return true;
+        }else if(id == R.id.menu_notifications2){
+            if(item.isChecked()){
+                item.setChecked(false);
+                Toast.makeText(getApplicationContext(), "Notifications2 are now OFF!", Toast.LENGTH_SHORT).show();
+                jobScheduler.cancel(111);
+                //jobScheduler.cancelAll();
+            }
+            else {
+                item.setChecked(true);
+                Toast.makeText(getApplicationContext(), "Notifications2 are now ON!", Toast.LENGTH_SHORT).show();
+                jobScheduler = JobScheduler.getInstance(this);
+                constructJob();
+            }
+
+
+
         } else if(id == R.id.menu_nfc){
             if(nfcAdapter!=null && nfcAdapter.isEnabled()){
                 Toast.makeText(this,"NFC está disponível!",Toast.LENGTH_SHORT).show();
@@ -536,7 +553,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
                 myIntent.putExtra( "animalName", result.getContents());
-                //TODO Arranjar forma de buscar outros campos
                 startActivity(myIntent);
             }
         }else {
@@ -544,10 +560,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setNotificationRepeat (View view){
-        Long notificationTime = new GregorianCalendar().getTimeInMillis()+5*1000; //5 seconds
-        Intent notificationIntent = new Intent(this, NotificationReceiver.class);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTime, PendingIntent.getBroadcast(this,0,notificationIntent,PendingIntent.FLAG_UPDATE_CURRENT));
+    private void constructJob(){
+        JobInfo.Builder jobBuilder = new JobInfo.Builder(111, new ComponentName(getPackageName(), BackgroundService.class.getName()));
+        PersistableBundle persistableBundle = new PersistableBundle();
+
+        jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) //dados ou wifi
+                .setPeriodic(5000) // = 5 seconds  (1h = 3600000 ms)
+                .setPersisted(true)
+                .build();
+
+        jobScheduler.schedule(jobBuilder.build());
     }
+
 }

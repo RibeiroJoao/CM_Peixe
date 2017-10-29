@@ -19,15 +19,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,8 +37,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A login screen that offers login via email/password.
@@ -119,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         //mEmailView.setText("joao.ribeiro@petuniversal.com");
-        mEmailView.setText("peixe@clinicaPeixe.com");
+        mEmailView.setText("joao@clinicavet.com");
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -223,16 +217,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setContentForFirebase(String email, String password) {
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
 
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
-
         //TODO check user size and add if new
         myDatabaseRef.child("users").child("user1").child("email").setValue(email);
-
-        //myDatabaseRef.child("clinics").child("name1").setValue("@login Clinic 1 firebase");
-        //myDatabaseRef.child("clinics").child("name2").setValue("@login Clinic 2 firebase");
 
     }
     /**
@@ -272,7 +262,7 @@ public class LoginActivity extends AppCompatActivity {
         private String token = null;
         private String userID = null;
         private String email = null;
-        private String fakeUser = null;
+        //private String fakeUser = null;
         private String URLParameters = null;
         private String returnado = null;        // Will contain the raw JSON response as a string.
 
@@ -293,7 +283,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 // Construct the URL for the Login
                 Log.i("PROGREEEESSSIING?","1....2....");
-                URL url = new URL("http://dev.petuniversal.com/hospitalization/api/tokens");
+                URL url = new URL("http://dev.petuniversal.com:8080/hospitalization/api/tokens");
 
                 // Create the request and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -381,48 +371,59 @@ public class LoginActivity extends AppCompatActivity {
                 }
             } else {
                 Log.i("TOKEN@LOGIN","Starting Firebase");
+                FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
 
                 // from database instance get reference of 'users' node
                 DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
                 // Write a message to the database
                 myDatabaseRef.child("users").child("user1").child("email").setValue(this.email);
+                //A parte
+                /* myDatabaseRef.child("users").child("user1").child("firstTimeLogin").setValue(0);
+                myDatabaseRef.child("clinics").child("name1").setValue("Clinic 1 firebase");
 
-                if(fakeUser==null){
-                    fakeUser = "fakeUser@petuniversal.com";
-                    //A parte
-                    /* myDatabaseRef.child("users").child("user1").child("firstTimeLogin").setValue(0);
-                    myDatabaseRef.child("clinics").child("name1").setValue("Clinic 1 firebase");
-                    myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
-                    myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen");
-                    myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("Laranja");
-                    myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
-                    myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Vacinação");
-                    myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("colorOrange"); */
-                }
+                myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
+                myDatabaseRef.child("animals").child("tarefaAnimal1").setValue("Brufen");
+                myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("colorOrange");
+                myDatabaseRef.child("animals").child("especieAnimal1").setValue("Cão");
+                myDatabaseRef.child("animals").child("idadeAnimal1").setValue("3 anos");
+                myDatabaseRef.child("animals").child("imagemLink1").setValue("https://i.pinimg.com/originals/aa/21/8e/aa218e0d81d51178ab68f65ef759eb11.png");
+                myDatabaseRef.child("animals").child("pesoAnimal1").setValue("44 kg");
+                myDatabaseRef.child("animals").child("raçaAnimal1").setValue("Pastor Alemão");
+                myDatabaseRef.child("animals").child("sexoAnimal1").setValue("Macho");
 
-                /*final ArrayList<String> clinicNames = new ArrayList<>();
-                DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
-                ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
-                            String value = dataSnapshot1.getValue(String.class);
-                            clinicNames.add(value);
-                            Log.i("CLINICS@MAIN", "through firebase: "+value);
+                myDatabaseRef.child("animals").child("nomeAnimal2").setValue("KikaF");
+                myDatabaseRef.child("animals").child("tarefaAnimal2").setValue("Desparazitação");
+                myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("colorOrange");
+                myDatabaseRef.child("animals").child("especieAnimal2").setValue("Gato");
+                myDatabaseRef.child("animals").child("idadeAnimal2").setValue("5 anos");
+                myDatabaseRef.child("animals").child("imagemLink2").setValue("http://www.pngmart.com/files/1/Cat-PNG-HD.png");
+                myDatabaseRef.child("animals").child("pesoAnimal2").setValue("3 kg");
+                myDatabaseRef.child("animals").child("raçaAnimal2").setValue("Bosques Noruega");
+                myDatabaseRef.child("animals").child("sexoAnimal2").setValue("Fêmea"); */
+
+                    /*final ArrayList<String> clinicNames = new ArrayList<>();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
+                                String value = dataSnapshot1.getValue(String.class);
+                                clinicNames.add(value);
+                                Log.i("CLINICS@MAIN", "through firebase: "+value);
+                            }
+                            Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
+                            Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
+                            //myIntent.putExtra("fakeToken", fakeUser);
+                            myIntent.putExtra("clinics", clinicNames);
+                            Log.i("SENT@MAIN", String.valueOf(clinicNames));
+                            startActivity(myIntent);
                         }
-                        Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
-                        Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
-                        //myIntent.putExtra("fakeToken", fakeUser);
-                        myIntent.putExtra("clinics", clinicNames);
-                        Log.i("SENT@MAIN", String.valueOf(clinicNames));
-                        startActivity(myIntent);
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
 
-                    }
-                });*/
+                        }
+                    });*/
 
 
                 Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
