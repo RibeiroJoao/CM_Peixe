@@ -18,7 +18,8 @@
                 android:layout_width="100dp"
                 android:layout_height="50dp"
                 android:src="@drawable/hosp_vet_generico"
-                android:layout_gravity="left"/>
+                android:layout_gravity="left"
+                android:id="@+id/imageView_List"/>
             <Button android:id="@+id/buttonClinic"
                 style="?android:attr/borderlessButtonStyle"
                 android:text="Button1"

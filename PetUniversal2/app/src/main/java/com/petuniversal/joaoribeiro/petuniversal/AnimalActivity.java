@@ -1,7 +1,5 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -14,7 +12,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,11 +21,8 @@ public class AnimalActivity extends AppCompatActivity {
 
     private String token;
     private String clinical_animal_id;
-
     private String animalName;
-
     private int animalID;
-    private Bitmap image;
     private String especie;
     private String raça;
     private String sexo;
@@ -47,8 +41,6 @@ public class AnimalActivity extends AppCompatActivity {
             animalID=extras.getInt("animalID");
 
             if (animalID == 0){
-                ImageView imageView = (ImageView) findViewById(R.id.animalImg_animalDetails);
-                imageView.setBackgroundResource(R.drawable.dog);
                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("animals");
                 reference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -76,6 +68,11 @@ public class AnimalActivity extends AppCompatActivity {
                                 //idade = value;
                                 TextView textView = (TextView) findViewById(R.id.textViewIdade);
                                 textView.setText("Idade : "+value);
+                            }else if (key.contains("imagemLink1")){
+                                //imagemLink = value;
+                                ImageView imageView = (ImageView) findViewById(R.id.animalImg_animalDetails);
+                                DownloadImageTask downloadImageTask = new DownloadImageTask(imageView);
+                                downloadImageTask.execute(value);
                             }
                         }
                     }
@@ -86,9 +83,6 @@ public class AnimalActivity extends AppCompatActivity {
                     }
                 });
             }else if (animalID == 1){
-                ImageView imageView = (ImageView) findViewById(R.id.animalImg_animalDetails);
-                imageView.setBackgroundResource(R.drawable.cat);
-
                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("animals");
                 reference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -116,7 +110,14 @@ public class AnimalActivity extends AppCompatActivity {
                                 //idade = value;
                                 TextView textView = (TextView) findViewById(R.id.textViewIdade);
                                 textView.setText("Idade : "+value);
+                            }else if (key.contains("imagemLink2")){
+                                //imagemLink = value;
+                                ImageView imageView = (ImageView) findViewById(R.id.animalImg_animalDetails);
+                                DownloadImageTask downloadImageTask = new DownloadImageTask(imageView);
+                                downloadImageTask.execute(value);
                             }
+
+
                         }
                     }
 

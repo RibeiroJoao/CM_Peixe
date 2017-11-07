@@ -7,6 +7,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.icu.text.SimpleDateFormat;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -15,9 +17,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcelable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +27,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,16 +70,17 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> animalNames = new ArrayList<>();                //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
     private HashMap<String,String> clinicAnimalIDnInternID = new HashMap<>(); //http://dev.petuniversal.com:8080/hospitalization/api/internments?clinic=53&open=true
     private ArrayList <String> clinicAnimalID = new ArrayList<>();
-    private HashMap<String,String> drugNamesnID = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
-    private HashMap<String,Integer> drugStartnPeriod = new HashMap<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
-    private ArrayList<Integer> drugPeriods = new ArrayList<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
-    private ArrayList<String> drugStarts = new ArrayList<>();       //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
-    private ArrayList<String> drugNames = new ArrayList<>();                  //For Firebase
-    private ArrayList<String> drugColors = new ArrayList<>();                 //For Firebase
-    //private ArrayList<Bitmap> animalImages = new ArrayList<>();             //For Firebase
+    private HashMap<String,String> drugNamesnID = new HashMap<>();          //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private HashMap<String,Integer> drugStartnPeriod = new HashMap<>();     //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private ArrayList<Integer> drugPeriods = new ArrayList<>();             //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private ArrayList<String> drugStarts = new ArrayList<>();               //http://dev.petuniversal.com:8080/hospitalization/api/drugs?clinic=53
+    private ArrayList<String> drugNames = new ArrayList<>();                //For Firebase
+    private ArrayList<String> drugColors = new ArrayList<>();               //For Firebase
+    private ArrayList<String> animalImageURLs = new ArrayList<>();          //For Firebase
     private boolean isFirebase;
     private View view;
     private JobScheduler jobScheduler;
+    private String token;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("ClickableViewAccessibility")
@@ -97,16 +99,14 @@ public class MainActivity extends AppCompatActivity {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         final String currentDateAndTime = sdf.format(new Date());
         String currentHour = String.valueOf(currentDateAndTime.charAt(9))+String.valueOf(currentDateAndTime.charAt(10));
-        //int tmp = Integer.parseInt(currentHour)+1; //in the summer time
         TextView textView = (TextView) findViewById(R.id.textViewHour);
-        //textView.setText(tmp+"h");
         textView.setText(currentHour+"h");
 
         Bundle extras = getIntent().getExtras();
         if (extras!=null && extras.containsKey("token")) {
             //API was success
             isFirebase= false;
-            final String token = extras.getString("token");
+            token = extras.getString("token");
             //String userID = extras.getString("userID");
             String clinicID = extras.getString("clinicID");
             Log.i("ENTROU@MAIN", "EXTRAS: token "+token+", clinicID "+ clinicID);
@@ -126,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         int endIndex = tmpName.indexOf('[');
                         String finalName = tmpName.substring(beginIndex,endIndex);
                         animalNames.add(finalName);
+                        Log.i("TEST3@MAIN",finalName);
                         clinicAnimalID.add(arr.getJSONObject(i).getString("clinicAnimal"));
                     }
                     Log.i("CLINaniID@MAIN",clinicAnimalID.toString());
@@ -152,14 +153,17 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("DrugNames&InternID@MAIN", drugNamesnID.toString());
                     Log.i("drugStartnPeriod@MAIN",drugStartnPeriod.toString());
                 }else Log.i("ERROR@MAIN","Request API is null");
-           } catch (InterruptedException | ExecutionException | JSONException e1) {
+            } catch (InterruptedException | ExecutionException | JSONException e1) {
                Log.i("CATCH3@MAIN", String.valueOf(e1));
             }
             getRequest2.cancel(true);
 
+            Log.i("TEST4@MAIN",animalNames.toString());
+
             for (int i = 0; i <= animalNames.size() - 1; i++) {
                 LinearLayout ll = view.findViewById(R.id.ll_animal);
                 Button btn = new Button(this);
+                Log.i("TEST5@MAIN",animalNames.get(i));
                 btn.setText(animalNames.get(i));
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
@@ -201,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("HOUR****@MAIN", String.valueOf(drugHour%2));
                 if(drugPeriods.get(iterator)==1){
                     btn.setBackgroundResource(R.color.colorOrange);
-                }else if (drugPeriods.get(iterator) == 2 && (Integer.parseInt(currentHour)%2)==0){
+                }else if (drugPeriods.get(iterator) == 2 && (Integer.parseInt(currentHour)%2)!=0){
                     btn.setBackgroundResource(R.color.colorOrange);
                 }else{
                     btn.setVisibility(View.INVISIBLE);
@@ -214,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
                         public boolean onDoubleTap(MotionEvent e) {
                             Log.i("DoubleTAP@MAIN", "onDoubleTap");
 
-                            //TODO metodo que vai criar action verde
                             btn.setBackgroundResource(R.color.colorPet);
                             actionTask = new MakeActionColorPet(token, prettyDateAndTime, Integer.parseInt(entry.getValue()), 222); //TODO 222 is static for joao@clinicaveti.com
                             actionTask.execute();
@@ -237,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i("FIREBASE@MAIN", "Entrar no Firebase");
             //API was unsuccessful
             isFirebase= true;
+
             final DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("animals");
             ref.addListenerForSingleValueEvent(new ValueEventListener() {
                 @SuppressLint("ClickableViewAccessibility")
@@ -247,15 +251,9 @@ public class MainActivity extends AppCompatActivity {
                         String value = dataSnapshot1.getValue(String.class);
                         if (key.contains("nome")) {
                             animalNames.add(value);
-                        }else /*if (key.contains("image")) {
-                            try {
-                                URL url = new URL(value);
-                                Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                                animalImages.add(bmp);
-                            } catch (IOException e) {
-                                Log.i("CATCH@MAIN", String.valueOf(e));
-                            }
-                        }else*/ if (key.contains("cor")){
+                        }else if (key.contains("image")) {
+                            animalImageURLs.add(value);
+                        }else if (key.contains("cor")){
                             drugColors.add(value);
                         }else if (key.contains("tarefa")){
                             drugNames.add(value);
@@ -264,10 +262,11 @@ public class MainActivity extends AppCompatActivity {
                     //if (animalNames.size() != 0 && animalImages.size() != 0) {
                     if (animalNames.size() != 0) {
                         LinearLayout ll = (LinearLayout) findViewById(R.id.first_right_cell);
-                        /*ImageView myImage = (ImageView) findViewById(R.id.first_right_image);
-                        myImage.setImageBitmap(animalImages.get(0));
-                        ll.addView(myImage);
-                        */
+
+                        ImageView myImage = (ImageView) findViewById(R.id.first_right_image);
+                        DownloadImageTask downloadImageTask = new DownloadImageTask(myImage);
+                        downloadImageTask.execute(animalImageURLs.get(0));
+
                         final Button btn = (Button) findViewById(R.id.zeusButton);
                         btn.setText(animalNames.get(0));
                         btn.setOnClickListener(new View.OnClickListener() {
@@ -280,11 +279,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                         });
 
-                        LinearLayout ll2 = (LinearLayout) findViewById(R.id.second_left_cell);
-                        /*ImageView myImage2 = (ImageView) findViewById(R.id.second_left_image);
-                        myImage2.setImageBitmap(animalImages.get(1));
-                        ll2.addView(myImage2);
-                        */
+                        ImageView myImage2 = (ImageView) findViewById(R.id.second_left_image);
+                        DownloadImageTask downloadImageTask2 = new DownloadImageTask(myImage2);
+                        downloadImageTask2.execute(animalImageURLs.get(1));
+
                         final Button btn2 = (Button) findViewById(R.id.animalButton2);
                         btn2.setText(animalNames.get(1));
                         btn2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -302,6 +300,12 @@ public class MainActivity extends AppCompatActivity {
                         LinearLayout ll = (LinearLayout) findViewById(R.id.first_right_cell);
                         @SuppressLint("WrongViewCast") final TextView textView = (TextView) findViewById(R.id.textViewDrug1);
                         textView.setText(drugNames.get(0));
+
+                        if(drugColors.get(0).contains("colorOrange")) {
+                            textView    .setBackgroundResource(R.color.colorOrange);
+                        }else if(drugColors.get(0).contains("colorPet")) {
+                            textView.setBackgroundResource(R.color.colorPet);
+                        }
 
                         textView.setOnTouchListener(new View.OnTouchListener() {
                             private GestureDetector gestureDetector = new GestureDetector(getApplication(), new GestureDetector.SimpleOnGestureListener() {
@@ -389,12 +393,12 @@ public class MainActivity extends AppCompatActivity {
     //Given index of drugNames change its color at Firebase and locally
     public static void changeColorToGreenAtFirebase(Integer id) {
         // from database instance get reference of 'users' node
-        DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference().child("animals");
         Log.i("ENTROU@MAIN","turnButtonGreen");
         if (id==0) {
-            myDatabaseRef.child("animals").child("corTarefaAnimal1").setValue("colorPet");
+            myDatabaseRef.child("corTarefaAnimal1").setValue("colorPet");
         } else if (id==1){
-            myDatabaseRef.child("animals").child("corTarefaAnimal2").setValue("colorPet");
+            myDatabaseRef.child("corTarefaAnimal2").setValue("colorPet");
         }
     }
 
@@ -408,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
         if(parcelables!=null && parcelables.length>0){
             readTextFomMessage((NdefMessage) parcelables[0]);
         }else {
-            Log.i("NFC@MAIN","no NFC text!");
+            Log.i("NFC@MAIN","no NFC content!");
         }
     }
 
@@ -425,6 +429,7 @@ public class MainActivity extends AppCompatActivity {
                     changeColorToGreenAtFirebase(0);
                     //Refresh Main
                     Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
+                    myIntent.putExtra("token", token);
                     startActivity(myIntent);
                 }
             }else if(tagContent.contains("Kika")){
@@ -433,6 +438,7 @@ public class MainActivity extends AppCompatActivity {
                     changeColorToGreenAtFirebase(1);
                     //Refresh Main
                     Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
+                    myIntent.putExtra("token", token);
                     startActivity(myIntent);
                 }
             }
@@ -501,38 +507,7 @@ public class MainActivity extends AppCompatActivity {
 
             return true;
         }
-        else if(id == R.id.menu_notifications){
-
-            if(item.isChecked()){
-                item.setChecked(false);
-                Toast.makeText(getApplicationContext(), "Notifications are now OFF!", Toast.LENGTH_SHORT).show();
-                notificationManager.cancel(notifID);
-            }
-            else {
-                item.setChecked(true);
-                Toast.makeText(getApplicationContext(), "Notifications are now ON!", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(this, MainActivity.class);
-
-                TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(this);
-                taskStackBuilder.addParentStack(MainActivity.class);
-                taskStackBuilder.addNextIntent(intent);
-
-                PendingIntent pendingIntent = taskStackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                NotificationCompat.Builder notification = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                        .setContentIntent(pendingIntent)
-                        .setSmallIcon(R.drawable.dog)
-                        .setContentTitle("Pet Universal Notification")
-                        .setContentText("Z precisa da Vac (Instantanea)")
-                        .setAutoCancel(true) //remove when swiped
-                        .setTicker("Pet has new task!")
-                        .setDefaults(NotificationCompat.DEFAULT_SOUND);
-
-                notificationManager.notify(notifID, notification.build());
-            }
-            return true;
-        }else if(id == R.id.menu_notifications2){
+        else if(id == R.id.menu_notifications2){
             if(item.isChecked()){
                 item.setChecked(false);
                 Toast.makeText(getApplicationContext(), "Notifications2 are now OFF!", Toast.LENGTH_SHORT).show();
@@ -567,9 +542,19 @@ public class MainActivity extends AppCompatActivity {
             if (result.getContents() == null) {
                 Toast.makeText(this, "Scanning cancelado.", Toast.LENGTH_LONG).show();
             } else {
-                Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
-                myIntent.putExtra( "animalName", result.getContents());
-                startActivity(myIntent);
+                if (result.getContents().contains("Zeus")) {
+                    Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
+                    myIntent.putExtra("animalName", result.getContents());
+                    myIntent.putExtra("animalID", 0); //Zeus
+                    startActivity(myIntent);
+                }else if (result.getContents().contains("Kika")) {
+                    Intent myIntent = new Intent(MainActivity.this, AnimalActivity.class);
+                    myIntent.putExtra("animalName", result.getContents());
+                    myIntent.putExtra("animalID", 1); //Kika
+                    startActivity(myIntent);
+                }else{
+                    Toast.makeText(this, "This is '"+result.getContents()+"'",Toast.LENGTH_SHORT).show();
+                }
             }
         }else {
             super.onActivityResult(requestCode,resultCode,data);
@@ -578,10 +563,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void constructJob(){
         JobInfo.Builder jobBuilder = new JobInfo.Builder(111, new ComponentName(getPackageName(), BackgroundService.class.getName()));
-        PersistableBundle persistableBundle = new PersistableBundle();
+        //PersistableBundle persistableBundle = new PersistableBundle();
 
         jobBuilder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY) //dados ou wifi
-                .setPeriodic(5000) // = 5 seconds  (1h = 3600000 ms)
+                .setPeriodic(3600000) // 5000 = 5 seconds  (1h = 3600000 ms)
                 .setPersisted(true)
                 .build();
 
@@ -697,6 +682,7 @@ public class MainActivity extends AppCompatActivity {
             if (success) {
                 if (returnado.contains("created")) {
                     Toast.makeText(getApplicationContext(), "Action registered successly! ", Toast.LENGTH_SHORT).show();
+                    //Refresh
                     Intent myIntent = new Intent(MainActivity.this, MainActivity.class);
                     myIntent.putExtra("token", token);
                     startActivity(myIntent);
@@ -714,6 +700,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
 }
-
-

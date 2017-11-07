@@ -1,74 +1,79 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context="com.petuniversal.joaoribeiro.petuniversal.AnimalActivity"
-    android:id="@+id/rl_animal_box">
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:background="@drawable/cell_animal"
-        android:layout_height="50dp"
-        android:layout_width="200dp"
-        android:layout_marginTop="18dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/linearLayout">
-        <ImageView
-            android:layout_width="50dp"
+    <RelativeLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/rl_animal_box">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_gravity="center"
+            android:background="@drawable/cell_animal"
             android:layout_height="50dp"
-            android:gravity="left"
-            android:id="@+id/animalImg_animalDetails"/>
-        <TextView
-            android:id="@+id/animalName"
+            android:layout_width="200dp"
+            android:layout_marginTop="18dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/linearLayout">
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="left"
+                android:id="@+id/animalImg_animalDetails"/>
+            <TextView
+                android:id="@+id/animalName"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center" />
+        </LinearLayout>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center" />
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/ll_animal_details"
-        android:layout_marginTop="100dp"
-        android:layout_marginLeft="20dp"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:text="Espécie:"
-            android:layout_below="@+id/linearLayout"
-            android:layout_alignStart="@+id/textViewRaca"
-            android:layout_marginTop="11dp"
-            android:id="@+id/textViewEspecie"/>
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:text="Raça:"
-            android:id="@+id/textViewRaca"
-            android:layout_below="@+id/textViewEspecie"
-            android:layout_alignStart="@+id/textViewSexo" />
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:text="Sexo: "
-            android:id="@+id/textViewSexo"
-            android:layout_below="@+id/textViewRaca"
-            android:layout_alignStart="@+id/textViewIdade" />
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:text="Idade:"
-            android:id="@+id/textViewIdade"
-            android:layout_centerVertical="true"
-            android:layout_alignStart="@+id/textViewPeso" />
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="50dp"
-            android:text="Peso: "
-            android:id="@+id/textViewPeso"
-            android:layout_below="@+id/textViewIdade" />
-    </LinearLayout>
+            android:id="@+id/ll_animal_details"
+            android:layout_marginTop="100dp"
+            android:layout_marginLeft="20dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="Espécie:"
+                android:layout_below="@+id/linearLayout"
+                android:layout_alignStart="@+id/textViewRaca"
+                android:layout_marginTop="11dp"
+                android:id="@+id/textViewEspecie"/>
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="Raça:"
+                android:id="@+id/textViewRaca"
+                android:layout_below="@+id/textViewEspecie"
+                android:layout_alignStart="@+id/textViewSexo" />
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="Sexo: "
+                android:id="@+id/textViewSexo"
+                android:layout_below="@+id/textViewRaca"
+                android:layout_alignStart="@+id/textViewIdade" />
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="Idade:"
+                android:id="@+id/textViewIdade"
+                android:layout_centerVertical="true"
+                android:layout_alignStart="@+id/textViewPeso" />
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="Peso: "
+                android:id="@+id/textViewPeso"
+                android:layout_below="@+id/textViewIdade" />
+        </LinearLayout>
 
-</RelativeLayout>
+    </RelativeLayout>
+</ScrollView>

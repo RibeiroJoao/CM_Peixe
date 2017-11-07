@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 import me.tatarka.support.job.JobParameters;
 import me.tatarka.support.job.JobService;
@@ -32,7 +30,7 @@ public class BackgroundService extends JobService {
 
         NotificationCompat.Builder notification = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
                 .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.dog)
+                .setSmallIcon(R.drawable.petuniversal230230)
                 .setContentTitle("Pet Universal Notification")
                 .setContentText("Verifique se tem tarefas!")
                 .setAutoCancel(true) //remove when swiped
@@ -41,7 +39,6 @@ public class BackgroundService extends JobService {
 
         notificationManager.notify(112, notification.build());
 
-        Log.i("JOB@JOB","Damn it!");
         jobFinished(params, false);
         return true;
     }

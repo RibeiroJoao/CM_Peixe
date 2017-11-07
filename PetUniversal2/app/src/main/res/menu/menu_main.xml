@@ -8,16 +8,9 @@
         android:title="QR code"
         app:showAsAction="never" />
     <item
-        android:id="@+id/menu_notifications"
-        android:orderInCategory="100"
-        android:title="Notifications"
-        android:checkable="true"
-        android:checked="false"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/menu_notifications2"
         android:orderInCategory="100"
-        android:title="Notifications2"
+        android:title="Notifications"
         android:checkable="true"
         android:checked="false"
         app:showAsAction="never" />

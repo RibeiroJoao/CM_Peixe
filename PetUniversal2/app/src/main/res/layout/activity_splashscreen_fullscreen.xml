@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/petuniversal500500"
-        android:background="#6CC6B8"/>
+        android:background="#6CC6B8"
+        android:contentDescription="@string/app_name"/>
 
 </FrameLayout>

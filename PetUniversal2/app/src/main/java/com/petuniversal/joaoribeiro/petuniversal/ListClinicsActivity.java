@@ -1,11 +1,15 @@
 package com.petuniversal.joaoribeiro.petuniversal;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.google.firebase.database.DataSnapshot;
@@ -17,12 +21,14 @@ import com.google.firebase.database.ValueEventListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class ListClinicsActivity extends AppCompatActivity {
 
     private ArrayList<String> clinicNames;
+    private ArrayList<String> clinicImages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,7 @@ public class ListClinicsActivity extends AppCompatActivity {
         String token = null;
         String userID = null;
         clinicNames = new ArrayList<>();
+        clinicImages = new ArrayList<>();
         final ArrayList<String> clinicIDs = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
@@ -48,8 +55,6 @@ public class ListClinicsActivity extends AppCompatActivity {
             String clinicsUrl = "http://dev.petuniversal.com:8080/hospitalization/api/clinics";
             AsyncGETs getRequest = new AsyncGETs();
             Log.i("Token@LIST", token);
-            //Log.i("USERid@LIST", userID);
-            //getRequest.execute(clinicsUrl, token, userID);
             getRequest.execute(clinicsUrl, token);
             try {
                 if (getRequest.get() != null) {
@@ -75,9 +80,15 @@ public class ListClinicsActivity extends AppCompatActivity {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
                         String value = dataSnapshot1.getValue(String.class);
-                        clinicNames.add(value);
-                        Log.i("CLINICS@LIST", "through firebase= " + value);
+                        if (dataSnapshot1.getKey().contains("name")) {
+                            Log.i("NAME@LIST", "through firebase= " + value);
+                            clinicNames.add(value);
+                        }else if (dataSnapshot1.getKey().contains("imagem")) {
+                            Log.i("IMAGE@LIST", "through firebase= " + value);
+                            clinicImages.add(value);
+                        }
                     }
+                    Log.i("SIZE1@LIST", String.valueOf(clinicNames.size()));
                     if (clinicNames.size() != 0) {
                         for (int i = 0; i <= clinicNames.size() - 1; i++) {
                             LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
@@ -90,6 +101,9 @@ public class ListClinicsActivity extends AppCompatActivity {
                                     startActivity(myIntent);
                                 }
                             });
+                            ImageView myImage = (ImageView) findViewById(R.id.imageView_List);
+                            DownloadImageTask downloadImageTask = new DownloadImageTask(myImage);
+                            downloadImageTask.execute(clinicImages.get(0));
                         }
                     }
                 }
@@ -102,8 +116,8 @@ public class ListClinicsActivity extends AppCompatActivity {
 
         }
 
-        //Create buttons
-        Log.i("SIZE@LIST", String.valueOf(clinicNames.size()));
+        //Create buttons with API
+        Log.i("SIZE2@LIST", String.valueOf(clinicNames.size()));
         if (clinicNames.size() != 0) {
             for (int i = 0; i <= clinicNames.size() - 1; i++) {
                 LinearLayout ll = (LinearLayout) findViewById(R.id.listclinics_form);
@@ -111,14 +125,12 @@ public class ListClinicsActivity extends AppCompatActivity {
                 btn.setText(clinicNames.get(i));
                 btn.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
                 final String finalToken = token;
-                //final String finalUserID = userID;
                 final String finalClinicID = clinicIDs.get(i);
                 btn.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         // Code here executes on main thread after user presses button
                         Intent myIntent = new Intent(ListClinicsActivity.this, MainActivity.class);
                         myIntent.putExtra("token", finalToken); //extra
-                        //myIntent.putExtra("userID", finalUserID);
                         myIntent.putExtra("clinicID", finalClinicID);
                         startActivity(myIntent);
                     }

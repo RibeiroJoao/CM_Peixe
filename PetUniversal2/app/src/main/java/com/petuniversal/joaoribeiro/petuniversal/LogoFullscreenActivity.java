@@ -32,7 +32,6 @@ public class LogoFullscreenActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Intent myIntent = new Intent(LogoFullscreenActivity.this, LoginActivity.class);
-                    myIntent.putExtra("net","true");
                     startActivity(myIntent);
                     finish();
                 }
@@ -45,7 +44,6 @@ public class LogoFullscreenActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     Intent myIntent = new Intent(LogoFullscreenActivity.this, LoginActivity.class);
-                    myIntent.putExtra("net","false");
                     startActivity(myIntent);
                     finish();
                 }

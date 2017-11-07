@@ -43,77 +43,24 @@ import java.util.concurrent.ExecutionException;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
-    private UserLoginTask mAuthTask = null;
 
-    // UI references.
+    private UserLoginTask mAuthTask = null;
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private boolean connectedToInternet;
-    final private ArrayList<String> emailList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey("net")) {
-            if (extras.getString("net").equals("true")) {
-                connectedToInternet = true;
-            } else if (extras.getString("net").equals("false")) {
-                connectedToInternet = false;
-            }
-        }else {
-            Log.i("ERROR@LOGIN","Major failure from LogoActivity extras");
-        }
+        //TODO Get list of users
+        //TODO Check currentUser exists in list
+        //TODO skipLogin if user registered, else {
 
-        /**
-         * //TODO Get list of users
-        if(!connectedToInternet) {
-            Log.i("ENTROU@LOGIN", "Not Connected");
-        }
-
-                FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
-
-                DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
-
-                myDatabaseRef.child("users").child("user1").child("email").setValue("testing");
-
-                myDatabaseRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
-                            for(DataSnapshot dataSnapshot2 : dataSnapshot1.getChildren()){
-                                String key = dataSnapshot2.getKey();
-                                String value = dataSnapshot2.getValue(String.class);
-                                if (key.contains("email")){
-                                    emailList.add(value);
-                                    Log.i("USERS@LOGIN", "through firebase= " + value);
-                                }
-                            }
-                        }
-                        Log.i("EMAILLIST@LOGIN", String.valueOf(emailList));
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.i("FIREBASE@LOGIN", "Got canceled");
-                    }
-                });
-            }
-            Log.i("EMAILLIST2@LOGIN", String.valueOf(emailList));
-
-            //TODO Check currentUser exists in list
-            //TODO skipLogin if user registered, else {
-            */
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        //mEmailView.setText("joao.ribeiro@petuniversal.com");
         mEmailView.setText("joao@clinicaveti.com");
 
         mPasswordView = (EditText) findViewById(R.id.password);
@@ -198,7 +145,6 @@ public class LoginActivity extends AppCompatActivity {
                     //with Firebase
                     setContentForFirebase(email,password);
             Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
-            //myIntent.putExtra("fakeToken", fakeUser);
             startActivity(myIntent);
                 }
             } catch (InterruptedException | ExecutionException e) {
@@ -218,7 +164,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void setContentForFirebase(String email, String password) {
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
+        //FirebaseDatabase.getInstance().setPersistenceEnabled(true); //should be on the first time it is called
 
         // Write a message to the database
         DatabaseReference myDatabaseRef = FirebaseDatabase.getInstance().getReference();
@@ -263,7 +209,6 @@ public class LoginActivity extends AppCompatActivity {
         private String token = null;
         private String userID = null;
         private String email = null;
-        //private String fakeUser = null;
         private String URLParameters = null;
         private String returnado = null;        // Will contain the raw JSON response as a string.
 
@@ -288,7 +233,6 @@ public class LoginActivity extends AppCompatActivity {
 
                 // Create the request and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
-                //urlConnection.setDoOutput(true);
                 urlConnection.setInstanceFollowRedirects(false);
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -355,13 +299,11 @@ public class LoginActivity extends AppCompatActivity {
                     if (returnado.contains("access_token")) {   //&& returnado.contains("user_id")
                         JSONObject obj = new JSONObject(returnado);
                         token = obj.getString("access_token");
-                        //userID = obj.getString("user_id");
 
                         Toast.makeText(getApplicationContext(), "Login Success! (API)", Toast.LENGTH_SHORT).show();
 
                         Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
                         myIntent.putExtra("token", token);
-                        //myIntent.putExtra("userID", userID);
                         startActivity(myIntent);
                     } else {
                         Log.i("ERROR@Login", "Token JSONarray falhado!");
@@ -379,7 +321,8 @@ public class LoginActivity extends AppCompatActivity {
                 // Write a message to the database
                 myDatabaseRef.child("users").child("user1").child("email").setValue(this.email);
                 //A parte
-                /* myDatabaseRef.child("users").child("user1").child("firstTimeLogin").setValue(0);
+                /*
+                myDatabaseRef.child("users").child("user1").child("firstTimeLogin").setValue(0);
                 myDatabaseRef.child("clinics").child("name1").setValue("Clinic 1 firebase");
 
                 myDatabaseRef.child("animals").child("nomeAnimal1").setValue("ZeusF");
@@ -400,36 +343,11 @@ public class LoginActivity extends AppCompatActivity {
                 myDatabaseRef.child("animals").child("imagemLink2").setValue("http://www.pngmart.com/files/1/Cat-PNG-HD.png");
                 myDatabaseRef.child("animals").child("pesoAnimal2").setValue("3 kg");
                 myDatabaseRef.child("animals").child("raçaAnimal2").setValue("Bosques Noruega");
-                myDatabaseRef.child("animals").child("sexoAnimal2").setValue("Fêmea"); */
-
-                    /*final ArrayList<String> clinicNames = new ArrayList<>();
-                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("clinics");
-                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for(DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
-                                String value = dataSnapshot1.getValue(String.class);
-                                clinicNames.add(value);
-                                Log.i("CLINICS@MAIN", "through firebase: "+value);
-                            }
-                            Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
-                            Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
-                            //myIntent.putExtra("fakeToken", fakeUser);
-                            myIntent.putExtra("clinics", clinicNames);
-                            Log.i("SENT@MAIN", String.valueOf(clinicNames));
-                            startActivity(myIntent);
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });*/
-
+                myDatabaseRef.child("animals").child("sexoAnimal2").setValue("Fêmea");
+                */
 
                 Toast.makeText(getApplicationContext(), "Login Success! (Firebase)", Toast.LENGTH_LONG).show();
                 Intent myIntent = new Intent(LoginActivity.this, ListClinicsActivity.class);
-                //myIntent.putExtra("fakeToken", fakeUser);
                 startActivity(myIntent);
 
             }
